@@ -13,6 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # fetch all branches & history
 
       - name: Setup Python 3.12
         uses: actions/setup-python@v5
@@ -39,9 +41,17 @@ jobs:
     needs: build-test
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # wichtig, damit origin/main bekannt ist
+
       - name: Check if WorktimeLog.txt changed
         run: |
-          if ! git diff --name-only origin/main...HEAD | grep -q 'WorktimeLog.txt'; then
-            echo "Error: WorktimeLog.txt must be changed when merging to main."
-            exit 1
+          # Skip check if origin/main does not exist (new repo)
+          if git rev-parse --verify origin/main >/dev/null 2>&1; then
+              if ! git diff --name-only origin/main...HEAD | grep -q 'WorktimeLog.txt'; then
+                  echo "Error: WorktimeLog.txt must be changed when merging to main."
+                  exit 1
+              fi
+          else
+              echo "origin/main not found, skipping WorkTimeLog check."
           fi

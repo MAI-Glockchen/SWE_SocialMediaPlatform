@@ -5,7 +5,7 @@ from sqlmodel import select
 from .database import get_session, init_db
 from .models import Post
 from .schemas import PostCreate, PostRead
-# Testcommit
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     init_db()

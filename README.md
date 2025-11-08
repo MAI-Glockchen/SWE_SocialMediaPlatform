@@ -1,4 +1,6 @@
 # SWE_SocialMediaPlatform
+Team: Andreas Wallnöfer, Armin Lohse
+
 Simple social media platform built as an exercise to understand and use software engineering concepts.
 
 # Branching Model & Workflow
@@ -36,13 +38,17 @@ This project uses a **Git Flow-inspired branching model** with enforced CI/CD an
 ---
 
 ## 3️⃣ GitHub Actions & CI
+- **Precommit(`pre-commit-config.yaml`)**  
+  - Runs before commit
+  - Code formatting (Black)
+  - Import order (isort)
 
 - **CI Workflow (`ci.yml`)**  
   - Runs on `feature/**` and `develop` branches  
   - Installs dependencies via `uv`  
-  - Checks code style with **Black** and **isort**  
   - Lints code (flake8)  
   - Runs tests (pytest)  
+  - **Note:** Black and isort are handled locally via pre-commit
 
 - **Deploy/Check Workflow (`deploy.yml`)**  
   - Runs on pull requests targeting `main`  
@@ -53,16 +59,22 @@ This project uses a **Git Flow-inspired branching model** with enforced CI/CD an
 
 ---
 
-## 4️⃣ Pre-Commit Hooks
+## 4️⃣ Pre-Commit Hooks (Recommended)
 
-- Local pre-commit hooks must run before committing:  
-  - Lint (flake8)  
-  - Code formatting (Black)  
-  - Import order (isort)  
-  - Optional: run tests  
+Pre-commit hooks automatically run **before every commit**, so you do **not** need to run Black or isort manually. They ensure your code is formatted correctly and imports are sorted before it reaches the repository.
 
-**Installation:**
+- Checks performed locally via pre-commit:
+  - **Code formatting** (Black)
+  - **Import order** (isort)
+  - **Lint** (flake8)
+
+**Installation and first-time setup:**
 ```bash
+# Install pre-commit tool
 pip install pre-commit
+
+# Register the hooks in your git repository
 pre-commit install
+
+# Run all hooks once on all files (recommended on first setup)
 pre-commit run --all-files

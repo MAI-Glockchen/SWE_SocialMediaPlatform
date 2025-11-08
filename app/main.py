@@ -1,5 +1,4 @@
 from contextlib import asynccontextmanager
-from datetime import datetime, timezone
 from fastapi import FastAPI, HTTPException
 from sqlmodel import select
 from .database import get_session, init_db

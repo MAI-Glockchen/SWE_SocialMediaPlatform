@@ -1,5 +1,5 @@
 # SWE_SocialMediaPlatform
-Simple social media platform that s build as a excercise to understand and use software engineering concepts.
+Simple social media platform built as an exercise to understand and use software engineering concepts.
 
 # Branching Model & Workflow
 
@@ -27,7 +27,7 @@ This project uses a **Git Flow-inspired branching model** with enforced CI/CD an
 - **Develop → Main**  
   - Only via Pull Request  
   - CI must pass (`build-test`)  
-  - `WorkTimeLog.txt` must be updated  
+  - `WorktimeLog.txt` must be updated  
   - Direct push to `main` is prohibited  
 
 - **Feature → Main**  
@@ -40,6 +40,7 @@ This project uses a **Git Flow-inspired branching model** with enforced CI/CD an
 - **CI Workflow (`ci.yml`)**  
   - Runs on `feature/**` and `develop` branches  
   - Installs dependencies via `uv`  
+  - Checks code style with **Black** and **isort**  
   - Lints code (flake8)  
   - Runs tests (pytest)  
 
@@ -56,7 +57,8 @@ This project uses a **Git Flow-inspired branching model** with enforced CI/CD an
 
 - Local pre-commit hooks must run before committing:  
   - Lint (flake8)  
-  - Formatting (black)  
+  - Code formatting (Black)  
+  - Import order (isort)  
   - Optional: run tests  
 
 **Installation:**

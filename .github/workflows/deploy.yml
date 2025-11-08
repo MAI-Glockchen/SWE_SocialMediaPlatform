@@ -39,9 +39,9 @@ jobs:
     needs: build-test
     steps:
       - uses: actions/checkout@v4
-      - name: Check if WorkTimeLog.txt changed
+      - name: Check if WorktimeLog.txt changed
         run: |
-          if ! git diff --name-only origin/main...HEAD | grep -q 'WorkTimeLog.txt'; then
-            echo "Error: WorkTimeLog.txt must be changed when merging to main."
+          if ! git diff --name-only origin/main...HEAD | grep -q 'WorktimeLog.txt'; then
+            echo "Error: WorktimeLog.txt must be changed when merging to main."
             exit 1
           fi

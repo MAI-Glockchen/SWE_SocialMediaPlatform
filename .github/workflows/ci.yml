@@ -1,0 +1,41 @@
+name: Python CI
+
+on:
+  push:
+    branches:
+      - 'feature/**'
+      - 'develop'
+  pull_request:
+    branches:
+      - 'develop'
+
+permissions:
+  contents: read
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Python 3.12
+      uses: actions/setup-python@v5
+      with:
+        python-version: 3.12
+
+    - name: Install uv
+      run: pip install uv
+
+    - name: Install dependencies
+      run: |
+        uv pip install --system --upgrade pip
+        uv pip install --system flake8 pytest
+        if [ -f requirements.txt ]; then uv pip install --system -r requirements.txt; fi
+
+    - name: Lint code
+      run: flake8 . --count --exit-zero --max-line-length=127
+
+    - name: Run tests
+      run: pytest -v

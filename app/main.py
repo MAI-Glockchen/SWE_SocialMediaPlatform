@@ -1,19 +1,22 @@
+from contextlib import asynccontextmanager
+from datetime import datetime, timezone
 from fastapi import FastAPI, HTTPException
 from sqlmodel import select
 from .database import get_session, init_db
 from .models import Post
 from .schemas import PostCreate, PostRead
 
-app = FastAPI(title="Simple Social API")
-
-@app.on_event("startup")
-def on_startup():
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     init_db()
+    yield
+
+app = FastAPI(title="Simple Social API", lifespan=lifespan)
 
 @app.post("/posts/", response_model=PostRead)
 def create_post(post: PostCreate):
     with get_session() as session:
-        new_post = Post(**post.dict())
+        new_post = Post(**post.model_dump())
         session.add(new_post)
         session.commit()
         session.refresh(new_post)

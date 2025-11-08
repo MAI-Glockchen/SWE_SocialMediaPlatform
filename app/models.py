@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlmodel import SQLModel, Field
 
 class Post(SQLModel, table=True):
@@ -6,4 +6,4 @@ class Post(SQLModel, table=True):
     image: str
     text: str
     user: str
-    created_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), nullable=False)

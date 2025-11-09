@@ -1,4 +1,4 @@
 Excercise 1
 
-
-Andreas: Github Actions: 3.5h
+Andreas: Github Actions: 3,0h
+Armin: Application: 3,0h

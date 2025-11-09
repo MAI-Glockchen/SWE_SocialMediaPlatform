@@ -40,8 +40,8 @@ jobs:
       - name: Run tests
         run: pytest -v
 
-      - name: Check if WorktimeLog.txt changed (only on PR to main)
-        if: github.event_name == 'pull_request' && github.base_ref == 'main'
+      - name: Check if WorktimeLog.txt changed if merging into main
+        if:  github.base_ref == 'main'
         run: |
           echo "🔍 Checking WorktimeLog.txt for changes..."
           # Skip check if origin/main does not exist

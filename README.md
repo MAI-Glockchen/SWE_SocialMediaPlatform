@@ -1,5 +1,5 @@
 # SWE_SocialMediaPlatform
-Team: Andreas Wallnöfer, Armin Lohse
+**Team:** Andreas Wallnöfer, Armin Lohse
 
 Simple social media platform built as an exercise to understand and use software engineering concepts.
 
@@ -13,49 +13,41 @@ This project uses a **Git Flow-inspired branching model** with enforced CI/CD an
 
 | Branch       | Purpose                   | Rules |
 |--------------|---------------------------|-------|
-| `main`       | Production / Release      | - Only pull requests from `develop` <br> - CI (`build-test`) and `WorktimeLog.txt` check must be filled out with the time that you spent on this feature <br> - Direct pushes prohibited |
-| `develop`    | Integration / Testing     | - Pull requests from feature branches <br> - CI (`build-test`) must pass <br> - Direct pushes prohibited |
-| `feature/**` | New features  | - Local development <br> - Merge only via PR to `develop` <br> - Pre-commit hooks must pass locally |
+| `main`       | Production / Release      | - Only pull requests from `feature/**` branches <br> - CI (`build-test`) and `WorkTimeLog.txt` check must pass <br> - Direct pushes prohibited |
+| `feature/**` | New features  | - Local development <br> - Merge only via PR to `main` <br> - Pre-commit hooks must pass locally |
 
 ---
 
 ## 2️⃣ Merge Rules
 
-- **Feature → Develop**  
+- **Feature → Main**  
   - Always via Pull Request  
   - CI (Tests + Lint) must pass  
-  - Local pre-commit hooks must be clean  
-
-- **Develop → Main**  
-  - Only via Pull Request  
-  - CI must pass (`build-test`)  
   - `WorktimeLog.txt` must be updated  
+  - Local pre-commit hooks must pass  
   - Direct push to `main` is prohibited  
 
-- **Feature → Main**  
-  - ❌ Not allowed  
 
 ---
 
 ## 3️⃣ GitHub Actions & CI
-- **Precommit(`pre-commit-config.yaml`)**  
-  - Runs before commit
-  - Code formatting (Black)
-  - Import order (isort)
+
+- **Pre-commit (`pre-commit-config.yaml`)**  
+  - Runs before commit  
+  - Code formatting (Black)  
+  - Import order (isort)  
 
 - **CI Workflow (`ci.yml`)**  
-  - Runs on `feature/**` and `develop` branches  
+  - Runs on pull requests targeting `main`
   - Installs dependencies via `uv`  
   - Lints code (flake8)  
-  - Runs tests (pytest)  
-  - **Note:** Black and isort are handled locally via pre-commit
-
-- **Deploy/Check Workflow (`deploy.yml`)**  
-  - Runs on pull requests targeting `main`  
-  - Ensures CI (`build-test`) passes  
+  - Runs tests (pytest)
   - Checks that `WorkTimeLog.txt` has been modified  
+  - Ensures CI (`build-test`) passes before merge  
+  - **Note:** Black and isort are handled locally via pre-commit  
 
-> Only when all checks pass can `develop` be merged into `main`.
+
+> Only when all checks pass can a feature branch be merged into `main`.
 
 ---
 

@@ -29,19 +29,19 @@ jobs:
       - name: Install uv
         run: pip install uv
 
-      - name: Install dependencies
+      - name: Install dependencies via uv
         run: |
-          uv pip install --system --upgrade pip
-          if [ -f requirements.txt ]; then uv pip install --system -r requirements.txt; fi
+          # Install all packages according to uv.lock (frozen)
+          uv sync --frozen
 
       - name: Lint code
-        run: flake8 . --count --exit-zero --max-line-length=127
+        run: uv run flake8 . --count --exit-zero --max-line-length=127
 
       - name: Run tests
-        run: pytest -v
+        run: uv run pytest -v
 
       - name: Check if WorktimeLog.txt changed if merging into main
-        if:  github.base_ref == 'main'
+        if: github.base_ref == 'main'
         run: |
           echo "🔍 Checking WorktimeLog.txt for changes..."
           # Skip check if origin/main does not exist
@@ -53,5 +53,5 @@ jobs:
                   echo "✅ WorktimeLog.txt change detected."
               fi
           else
-              echo "ℹ️ origin/main not found, skipping WorktimeLog check."
+              echo "ℹ️ origin/main not found, skipping WorkTimeLog check."
           fi

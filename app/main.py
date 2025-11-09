@@ -1,11 +1,10 @@
 from contextlib import asynccontextmanager
-from datetime import datetime, timezone
 from fastapi import FastAPI, HTTPException
 from sqlmodel import select
 from .database import get_session, init_db
 from .models import Post
 from .schemas import PostCreate, PostRead
-# Testcommit
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     init_db()

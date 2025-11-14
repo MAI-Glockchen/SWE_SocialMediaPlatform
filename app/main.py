@@ -24,28 +24,27 @@ def create_post(post: PostCreate):
         session.add(new_post)
         session.commit()
         session.refresh(new_post)
-        return new_post
+        return PostRead.from_orm(new_post)
 
 
-@app.get("/posts", response_model=PostRead)
-def get_all_posts(post_id: int | None = None):
+@app.get("/posts/", response_model=list[PostRead])
+def get_all_posts():
     with get_session() as session:
         query = select(Post).order_by(Post.created_at.desc())
-        all_posts = session.exec(query)
+        posts = session.exec(query).all()
 
-        if not all_posts:
+        if not posts:
             raise HTTPException(404, "No posts found")
 
-        return all_posts
+        return [PostRead.from_orm(post) for post in posts]  # <- fix
 
 
 @app.get("/posts/{post_id}", response_model=PostRead)
 def get_post_by_id(post_id: int):
     with get_session() as session:
-        query = select(Post).where(Post.id == post_id)
-        result = session.exec(query).first()
+        post = session.exec(select(Post).where(Post.id == post_id)).first()
 
-        if not result:
+        if not post:
             raise HTTPException(404, "Post not found")
 
-        return result
+        return PostRead.from_orm(post)

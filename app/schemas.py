@@ -20,14 +20,13 @@ class PostRead(BaseModel):
 
 
 class CommentCreate(BaseModel):
-    super_id: int
     text: str
     user: str
 
 
 class CommentRead(BaseModel):
     super_id: int
-    post_id: int
+    comment_id: int
     text: str
     user: str
     created_at: datetime

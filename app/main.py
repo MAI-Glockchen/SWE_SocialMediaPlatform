@@ -5,7 +5,7 @@ from sqlmodel import select
 
 from .database import get_session, init_db
 from .models import Comment, Post
-from .schemas import CommentRead, PostCreate, PostRead
+from .schemas import CommentCreate, CommentRead, PostCreate, PostRead
 
 
 @asynccontextmanager
@@ -61,3 +61,13 @@ def get_comments_for_post_id(post_id: int):
             raise HTTPException(404, "No comments found for this post")
 
         return comments
+
+
+@app.post("/posts/{post_id}/comments", response_model=CommentRead)
+def create_comment_for_post(post_id: int, comment: CommentCreate):
+    with get_session() as session:
+        new_comment = Comment(super_id=post_id, **comment.model_dump())
+        session.add(new_comment)
+        session.commit()
+        session.refresh(new_comment)
+        return CommentRead.from_orm(new_comment)

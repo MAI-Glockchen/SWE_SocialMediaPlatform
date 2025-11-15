@@ -1,0 +1,156 @@
+openapi: 3.0.3
+info:
+  title: API for simple Social Media Platform
+  version: 1.0.0
+
+paths:
+  /posts:
+    get:
+      summary: List posts or search
+      parameters:
+        - in: query
+          name: q
+          schema:
+            type: string
+          description: Search text or user fields
+      responses:
+        '200':
+          description: List of posts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PostRead'
+
+    post:
+      summary: Create a new post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostCreate'
+      responses:
+        '201':
+          description: Post created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostRead'
+
+  /posts/{id}:
+    get:
+      summary: Get a post by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Post details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostRead'
+        '404':
+          description: Post not found
+
+  /posts/{id}/comments:
+    get:
+      summary: Get comments for a post
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of comments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CommentRead'
+        '404':
+          description: Post not found
+
+    post:
+      summary: Add a comment to a post
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentCreate'
+      responses:
+        '201':
+          description: Comment created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentRead'
+        '404':
+          description: Post not found
+
+components:
+  schemas:
+    PostCreate:
+      type: object
+      required: [image, text, user]
+      properties:
+        image:
+          type: string
+        text:
+          type: string
+        user:
+          type: string
+
+    PostRead:
+      type: object
+      properties:
+        id:
+          type: integer
+        image:
+          type: string
+        text:
+          type: string
+        user:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    CommentCreate:
+      type: object
+      required: [text, user]
+      properties:
+        text:
+          type: string
+        user:
+          type: string
+
+    CommentRead:
+      type: object
+      properties:
+        id:
+          type: integer
+        post_id:
+          type: integer
+        text:
+          type: string
+        user:
+          type: string
+        created_at:
+          type: string
+          format: date-time

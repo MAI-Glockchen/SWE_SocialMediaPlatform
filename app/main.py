@@ -4,8 +4,8 @@ from fastapi import FastAPI, HTTPException
 from sqlmodel import select
 
 from .database import get_session, init_db
-from .models import Post
-from .schemas import PostCreate, PostRead
+from .models import Comment, Post
+from .schemas import CommentRead, PostCreate, PostRead
 
 
 @asynccontextmanager
@@ -48,3 +48,16 @@ def get_post_by_id(post_id: int):
             raise HTTPException(404, "Post not found")
 
         return PostRead.from_orm(post)
+
+
+@app.get("/posts/{post_id}/comments", response_model=list[CommentRead])
+def get_comments_for_post_id(post_id: int):
+    with get_session() as session:
+        comments = session.exec(
+            select(Comment).where(Comment.super_id == post_id)
+        ).all()
+
+        if not comments:
+            raise HTTPException(404, "No comments found for this post")
+
+        return comments

@@ -1,30 +1,15 @@
 openapi: 3.0.3
 info:
-  title: API for simple Social Media Platform
-  version: 1.0.0
-
+  title: Simple Social API
+  version: "1.0.0"
+  description: A simple API for posts and comments
+servers:
+  - url: http://localhost:8000
 paths:
-  /posts:
-    get:
-      summary: List posts or search
-      parameters:
-        - in: query
-          name: q
-          schema:
-            type: string
-          description: Search text or user fields
-      responses:
-        '200':
-          description: List of posts
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/PostRead'
-
+  /posts/:
     post:
       summary: Create a new post
+      operationId: create_post
       requestBody:
         required: true
         content:
@@ -32,38 +17,62 @@ paths:
             schema:
               $ref: '#/components/schemas/PostCreate'
       responses:
-        '201':
-          description: Post created
+        '200':
+          description: Post created successfully
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/PostRead'
+    get:
+      summary: Get all posts
+      operationId: get_all_posts
+      responses:
+        '200':
+          description: A list of posts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PostRead'
+        '404':
+          description: No posts found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
-  /posts/{id}:
+  /posts/{post_id}:
     get:
       summary: Get a post by ID
+      operationId: get_post_by_id
       parameters:
-        - in: path
-          name: id
+        - name: post_id
+          in: path
           required: true
           schema:
             type: integer
       responses:
         '200':
-          description: Post details
+          description: Post found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/PostRead'
         '404':
           description: Post not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
-  /posts/{id}/comments:
+  /posts/{post_id}/comments:
     get:
       summary: Get comments for a post
+      operationId: get_comments_for_post_id
       parameters:
-        - in: path
-          name: id
+        - name: post_id
+          in: path
           required: true
           schema:
             type: integer
@@ -77,13 +86,18 @@ paths:
                 items:
                   $ref: '#/components/schemas/CommentRead'
         '404':
-          description: Post not found
+          description: No comments found for this post
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
     post:
-      summary: Add a comment to a post
+      summary: Create a comment for a post
+      operationId: create_comment_for_post
       parameters:
-        - in: path
-          name: id
+        - name: post_id
+          in: path
           required: true
           schema:
             type: integer
@@ -94,63 +108,92 @@ paths:
             schema:
               $ref: '#/components/schemas/CommentCreate'
       responses:
-        '201':
-          description: Comment created
+        '200':
+          description: Comment created successfully
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/CommentRead'
         '404':
           description: Post not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
 components:
   schemas:
     PostCreate:
       type: object
-      required: [image, text, user]
+      required:
+        - image
+        - text
+        - user
       properties:
         image:
           type: string
+          example: cat.png
         text:
           type: string
+          example: Hello world
         user:
           type: string
+          example: alice
 
     PostRead:
-      type: object
-      properties:
-        id:
-          type: integer
-        image:
-          type: string
-        text:
-          type: string
-        user:
-          type: string
-        created_at:
-          type: string
-          format: date-time
+      allOf:
+        - $ref: '#/components/schemas/PostCreate'
+        - type: object
+          required:
+            - id
+            - created_at
+          properties:
+            id:
+              type: integer
+              example: 1
+            created_at:
+              type: string
+              format: date-time
+              example: '2025-11-15T10:30:00Z'
 
     CommentCreate:
       type: object
-      required: [text, user]
+      required:
+        - text
+        - user
       properties:
         text:
           type: string
+          example: nice post!
         user:
           type: string
+          example: alicia
 
     CommentRead:
+      allOf:
+        - $ref: '#/components/schemas/CommentCreate'
+        - type: object
+          required:
+            - id
+            - super_id
+            - created_at
+          properties:
+            id:
+              type: integer
+              example: 1
+            super_id:
+              type: integer
+              example: 1
+            created_at:
+              type: string
+              format: date-time
+              example: '2025-11-15T10:31:00Z'
+
+    Error:
       type: object
+      required:
+        - detail
       properties:
-        id:
-          type: integer
-        post_id:
-          type: integer
-        text:
+        detail:
           type: string
-        user:
-          type: string
-        created_at:
-          type: string
-          format: date-time
+          example: Not found

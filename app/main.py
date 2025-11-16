@@ -1,6 +1,6 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from sqlmodel import select
 
 from .database import get_session, init_db
@@ -28,15 +28,27 @@ def create_post(post: PostCreate):
 
 
 @app.get("/posts/", response_model=list[PostRead])
-def get_all_posts():
+def get_all_posts(
+    text: str = Query(None, description="Search term for title or text"),
+    user: str = Query(None, description="Filter by author username"),
+):
     with get_session() as session:
-        query = select(Post).order_by(Post.created_at.desc())
+        query = select(Post)
+
+        if text:
+            query = query.where((Post.text.ilike(f"%{text}%")))
+
+        if user:
+            query = query.where(Post.user == user)
+
+        # Order results by newest first
+        query = query.order_by(Post.created_at.desc())
         posts = session.exec(query).all()
 
         if not posts:
             raise HTTPException(404, "No posts found")
 
-        return [PostRead.from_orm(post) for post in posts]  # <- fix
+        return [PostRead.from_orm(post) for post in posts]
 
 
 @app.get("/posts/{post_id}", response_model=PostRead)
@@ -51,16 +63,39 @@ def get_post_by_id(post_id: int):
 
 
 @app.get("/posts/{post_id}/comments", response_model=list[CommentRead])
-def get_comments_for_post_id(post_id: int):
+def get_comments_for_post_id(
+    post_id: int,
+    text: str = Query(None, description="Search term in comment text"),
+    user: str = Query(None, description="Filter by comment user"),
+):
     with get_session() as session:
-        comments = session.exec(
-            select(Comment).where(Comment.super_id == post_id)
-        ).all()
+        query = select(Comment).where(Comment.super_id == post_id)
+
+        if text:
+            query = query.where(Comment.text.ilike(f"%{text}%"))
+
+        if user:
+            query = query.where(Comment.user == user)
+
+        comments = session.exec(query).all()
 
         if not comments:
             raise HTTPException(404, "No comments found for this post")
 
-        return comments
+        return [CommentRead.from_orm(comment) for comment in comments]
+
+
+@app.get("/comments/{comment_id}", response_model=CommentRead)
+def get_comment_by_id(comment_id: int):
+    with get_session() as session:
+        comment = session.exec(
+            select(Comment).where(Comment.comment_id == comment_id)
+        ).first()
+
+        if not comment:
+            raise HTTPException(404, "Comment not found")
+
+        return CommentRead.from_orm(comment)
 
 
 @app.post("/posts/{post_id}/comments", response_model=CommentRead)

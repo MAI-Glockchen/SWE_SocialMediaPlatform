@@ -59,3 +59,32 @@ def test_get_comments_for_post():
 def test_get_comments_invalid_post():
     r = client.get("/posts/999999999/comments")
     assert r.status_code == 404
+
+
+def test_get_comment_by_id():
+    post_id = create_test_post()
+
+    # Erstelle einen Kommentar
+    comment_data = {"text": "unique comment", "user": "dave"}
+    r = client.post(f"/posts/{post_id}/comments", json=comment_data)
+    assert r.status_code == 200
+    comment_id = r.json()["comment_id"]
+
+    # GET Kommentar nach ID
+    r2 = client.get(f"/comments/{comment_id}")
+    assert r2.status_code == 200
+    data = r2.json()
+    assert (
+        data["comment_id"] == comment_id
+    ), f"Expected comment ID {comment_id}, got {data['id']}"
+    assert data["user"] == "dave", f"Expected user 'dave', got {data['user']}"
+    assert (
+        data["text"] == "unique comment"
+    ), f"Expected text 'unique comment', got {data['text']}"
+
+    # Test nicht existierender Kommentar
+    r3 = client.get("/comments/999999999")
+    assert (
+        r3.status_code == 404
+    ), f"Expected 404 for non-existent comment, got {r3.status_code}"
+    assert r3.json()["detail"] == "Comment not found"

@@ -1,6 +1,6 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from sqlmodel import select
 
 from .database import get_session, init_db
@@ -28,15 +28,27 @@ def create_post(post: PostCreate):
 
 
 @app.get("/posts/", response_model=list[PostRead])
-def get_all_posts():
+def get_all_posts(
+    text: str = Query(None, description="Search term for title or text"),
+    user: str = Query(None, description="Filter by author username"),
+):
     with get_session() as session:
-        query = select(Post).order_by(Post.created_at.desc())
+        query = select(Post)
+
+        if text:
+            query = query.where((Post.text.ilike(f"%{text}%")))
+
+        if user:
+            query = query.where(Post.user == user)
+
+        # Order results by newest first
+        query = query.order_by(Post.created_at.desc())
         posts = session.exec(query).all()
 
         if not posts:
             raise HTTPException(404, "No posts found")
 
-        return [PostRead.from_orm(post) for post in posts]  # <- fix
+        return [PostRead.from_orm(post) for post in posts]
 
 
 @app.get("/posts/{post_id}", response_model=PostRead)

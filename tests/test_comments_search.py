@@ -1,14 +1,53 @@
 import pytest
 from fastapi.testclient import TestClient
+from sqlmodel import Session, SQLModel, create_engine
 
-from app.main import app, init_db
+from app.main import app, get_session_dep
+
+# --------------------------
+# Setup test database
+# --------------------------
+TEST_DB_URL = "sqlite:///./test.db"
+test_engine = create_engine(TEST_DB_URL, connect_args={"check_same_thread": False})
+SQLModel.metadata.create_all(test_engine)
+
+
+def get_test_session():
+    with Session(test_engine) as session:
+        yield session
+
+
+# Override dependency
+app.dependency_overrides[get_session_dep] = get_test_session
 
 client = TestClient(app)
 
 
+# --------------------------
+# Fixtures
+# --------------------------
 @pytest.fixture(scope="module", autouse=True)
 def setup_db():
-    init_db()
+    SQLModel.metadata.create_all(test_engine)
+
+
+@pytest.fixture(autouse=True)
+def clean_db_after_test():
+    """Clean all tables after each test"""
+    yield
+    with Session(test_engine) as session:
+        for table in reversed(SQLModel.metadata.sorted_tables):
+            session.execute(table.delete())
+        session.commit()
+
+
+# --------------------------
+# Helpers
+# --------------------------
+def create_test_post():
+    post_data = {"image": "post.png", "text": "parent post", "user": "tester"}
+    r = client.post("/posts/", json=post_data)
+    return r.json()["id"]
 
 
 def test_create_comment_for_post():

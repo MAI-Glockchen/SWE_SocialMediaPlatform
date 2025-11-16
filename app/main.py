@@ -85,6 +85,19 @@ def get_comments_for_post_id(
         return [CommentRead.from_orm(comment) for comment in comments]
 
 
+@app.get("/comments/{comment_id}", response_model=CommentRead)
+def get_comment_by_id(comment_id: int):
+    with get_session() as session:
+        comment = session.exec(
+            select(Comment).where(Comment.comment_id == comment_id)
+        ).first()
+
+        if not comment:
+            raise HTTPException(404, "Comment not found")
+
+        return CommentRead.from_orm(comment)
+
+
 @app.post("/posts/{post_id}/comments", response_model=CommentRead)
 def create_comment_for_post(post_id: int, comment: CommentCreate):
     with get_session() as session:

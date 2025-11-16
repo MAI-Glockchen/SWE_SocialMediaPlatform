@@ -63,16 +63,26 @@ def get_post_by_id(post_id: int):
 
 
 @app.get("/posts/{post_id}/comments", response_model=list[CommentRead])
-def get_comments_for_post_id(post_id: int):
+def get_comments_for_post_id(
+    post_id: int,
+    text: str = Query(None, description="Search term in comment text"),
+    user: str = Query(None, description="Filter by comment user"),
+):
     with get_session() as session:
-        comments = session.exec(
-            select(Comment).where(Comment.super_id == post_id)
-        ).all()
+        query = select(Comment).where(Comment.super_id == post_id)
+
+        if text:
+            query = query.where(Comment.text.ilike(f"%{text}%"))
+
+        if user:
+            query = query.where(Comment.user == user)
+
+        comments = session.exec(query).all()
 
         if not comments:
             raise HTTPException(404, "No comments found for this post")
 
-        return comments
+        return [CommentRead.from_orm(comment) for comment in comments]
 
 
 @app.post("/posts/{post_id}/comments", response_model=CommentRead)

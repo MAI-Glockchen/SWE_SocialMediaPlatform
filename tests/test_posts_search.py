@@ -13,24 +13,19 @@ def setup_db():
 
 def test_search_posts_by_text():
     # Create posts to search
-    client.post(
-        "/posts/", json={"image": "dog.png", "text": "Search me", "user": "bob"}
+    r1 = client.post(
+        "/posts/", json={"image": "dog.png", "text": "Search test 123 ", "user": "bob"}
     )
-    client.post(
-        "/posts/", json={"image": "cat2.png", "text": "Another post", "user": "alice"}
-    )
+    assert r1.status_code == 200, f"Failed to create post: {r1.text}"
 
-    # Search for "Search"
-    r = client.get("/posts/", params={"text": "Search"})
-    assert r.status_code == 200
+    r = client.get("/posts/", params={"text": "Search test 123"})
+    assert r.status_code == 200, f"Search request failed: {r.text}"
+
     data = r.json()
-    assert all(
-        "Search" in post["text"]
-        or "Search" in post["image"]
-        or "Search" in post["user"]
-        for post in data
-    )
-    assert len(data) > 0
+    assert len(data) > 0, "Search returned no results"
+
+    for post in data:
+        assert "Search" in post["text"], f"Post did not match search query: {post}"
 
 
 def test_search_posts_by_user():

@@ -5,6 +5,7 @@ info:
   description: A simple API for posts and comments
 servers:
   - url: http://localhost:8000
+
 paths:
   /posts/:
     post:
@@ -30,7 +31,7 @@ paths:
         - name: text
           in: query
           required: false
-          description: Search term for title or text
+          description: Search term for text
           schema:
             type: string
         - name: user
@@ -116,6 +117,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+
     post:
       summary: Create a comment for a post
       operationId: create_comment_for_post
@@ -171,6 +173,7 @@ paths:
 
 components:
   schemas:
+
     PostCreate:
       type: object
       required:
@@ -180,7 +183,9 @@ components:
       properties:
         image:
           type: string
-          example: cat.png
+          description: >
+            Base64-encoded PNG or a data URL (e.g. "data:image/png;base64,...").
+          example: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgA..."
         text:
           type: string
           example: Hello world
@@ -198,11 +203,9 @@ components:
           properties:
             id:
               type: integer
-              example: 1
             created_at:
               type: string
               format: date-time
-              example: '2025-11-15T10:30:00Z'
 
     CommentCreate:
       type: object
@@ -228,14 +231,11 @@ components:
           properties:
             id:
               type: integer
-              example: 1
             super_id:
               type: integer
-              example: 1
             created_at:
               type: string
               format: date-time
-              example: '2025-11-15T10:31:00Z'
 
     Error:
       type: object
@@ -244,4 +244,3 @@ components:
       properties:
         detail:
           type: string
-          example: Not found

@@ -5,7 +5,7 @@ from sqlmodel import Field, SQLModel
 
 class Post(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
-    image: str
+    image: bytes  # store image as blob
     text: str
     user: str
     created_at: datetime = Field(

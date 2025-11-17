@@ -1,4 +1,5 @@
 import base64
+import re
 from contextlib import asynccontextmanager
 
 from fastapi import Depends, FastAPI, HTTPException, Query
@@ -29,20 +30,36 @@ app = FastAPI(title="Simple Social API", lifespan=lifespan)
 
 @app.post("/posts/", response_model=PostRead)
 def create_post(post: PostCreate, session: Session = Depends(get_session_dep)):
-    # Decode Base64 string (tests pass plain strings but still valid)
+    raw = post.image.strip()
 
+    # -------------------------------
+    # 1) Falls es eine Data-URL ist:
+    #    "data:image/png;base64,<base64>"
+    # -------------------------------
+    if raw.startswith("data:"):
+        match = re.match(r"data:.*?;base64,(.*)", raw, re.DOTALL)
+        if not match:
+            raise HTTPException(400, "Invalid data URL format")
+        raw = match.group(1)
+
+    # -------------------------------
+    # 2) Entferne Whitespaces/Newlines
+    # -------------------------------
+    raw = raw.replace("\n", "").replace("\r", "").replace(" ", "")
+
+    # -------------------------------
+    # 3) Base64 decodieren
+    # -------------------------------
     try:
-        image_bytes = base64.b64decode(post.image)
+        image_bytes = base64.b64decode(raw, validate=False)
     except Exception:
         raise HTTPException(400, "Invalid base64 image string")
 
     new_post = Post(image=image_bytes, text=post.text, user=post.user)
-
     session.add(new_post)
     session.commit()
     session.refresh(new_post)
 
-    # Encode bytes → base64 for output
     return PostRead.from_orm_bytes(new_post)
 
 

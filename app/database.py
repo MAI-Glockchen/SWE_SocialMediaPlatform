@@ -1,23 +1,7 @@
-import os
 from contextlib import contextmanager
 from pathlib import Path
 
 from sqlmodel import Session, SQLModel, create_engine
-
-# --------------------------
-# Paths
-# --------------------------
-CURRENT_DIR = os.path.dirname(__file__)  # directory of this script
-TEST_PNG_DIR = os.path.join(CURRENT_DIR, "test_pngs")  # PNG folder path
-
-
-def load_png_bytes(file_name: str) -> bytes:
-    file_path = os.path.join(TEST_PNG_DIR, file_name)
-    if not os.path.exists(file_path):
-        raise FileNotFoundError(f"{file_path} does not exist")
-    with open(file_path, "rb") as f:
-        return f.read()
-
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DB_PATH = PROJECT_ROOT / "sqlite" / "social.db"

@@ -1,3 +1,5 @@
+import base64
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlmodel import Session, SQLModel, create_engine
@@ -5,21 +7,19 @@ from sqlmodel import Session, SQLModel, create_engine
 from app.main import app, get_session_dep
 
 # --------------------------
-# Setup test database
+# Setup Test DB
 # --------------------------
 TEST_DB_URL = "sqlite:///./test.db"
-test_engine = create_engine(TEST_DB_URL, connect_args={"check_same_thread": False})
-SQLModel.metadata.create_all(test_engine)
+engine = create_engine(TEST_DB_URL, connect_args={"check_same_thread": False})
+SQLModel.metadata.create_all(engine)
 
 
 def get_test_session():
-    with Session(test_engine) as session:
+    with Session(engine) as session:
         yield session
 
 
-# Override dependency
 app.dependency_overrides[get_session_dep] = get_test_session
-
 client = TestClient(app)
 
 
@@ -28,14 +28,14 @@ client = TestClient(app)
 # --------------------------
 @pytest.fixture(scope="module", autouse=True)
 def setup_db():
-    SQLModel.metadata.create_all(test_engine)
+    SQLModel.metadata.create_all(engine)
 
 
 @pytest.fixture(autouse=True)
 def clean_db_after_test():
-    """Clean all tables after each test"""
+    """Clean DB after each test"""
     yield
-    with Session(test_engine) as session:
+    with Session(engine) as session:
         for table in reversed(SQLModel.metadata.sorted_tables):
             session.execute(table.delete())
         session.commit()
@@ -44,100 +44,95 @@ def clean_db_after_test():
 # --------------------------
 # Helpers
 # --------------------------
-def create_test_post():
-    post_data = {"image": "post.png", "text": "parent post", "user": "tester"}
-    r = client.post("/posts/", json=post_data)
+def encode_image(name: str) -> str:
+    """Encode dummy image name into Base64"""
+    return base64.b64encode(name.encode()).decode()
+
+
+def create_post(text="Test post", user="tester", image="myimg.png"):
+    payload = {
+        "image": encode_image(image),
+        "text": text,
+        "user": user,
+    }
+    r = client.post("/posts/", json=payload)
+    assert r.status_code == 200, f"Failed to create post: {r.text}"
     return r.json()["id"]
 
 
+# --------------------------
+# Tests
+# --------------------------
 def test_create_comment_for_post():
-    # Create a post first
-    post_data = {"image": "post.png", "text": "Post for comments", "user": "alice"}
-    r = client.post("/posts/", json=post_data)
-    assert r.status_code == 200
-    post_id = r.json()["id"]
+    post_id = create_post(text="Post for comments", user="alice", image="post.png")
 
-    # Create a comment
     comment_data = {"text": "Hello comment", "user": "bob"}
-    r2 = client.post(f"/posts/{post_id}/comments", json=comment_data)
-    assert r2.status_code == 200
-    data = r2.json()
+    r = client.post(f"/posts/{post_id}/comments", json=comment_data)
+
+    assert r.status_code == 200
+    data = r.json()
     assert data["user"] == "bob"
-    assert "text" in data
     assert data["text"] == "Hello comment"
 
 
 def test_search_comments_by_text():
-    # Create comments
-    post_data = {"image": "post2.png", "text": "Another post", "user": "alice"}
-    post_id = client.post("/posts/", json=post_data).json()["id"]
+    post_id = create_post(text="Another post", user="alice", image="p2.png")
 
     client.post(f"/posts/{post_id}/comments", json={"text": "FindMe123", "user": "bob"})
     client.post(
-        f"/posts/{post_id}/comments", json={"text": "Other comment", "user": "charlie"}
+        f"/posts/{post_id}/comments", json={"text": "Something else", "user": "charlie"}
     )
 
-    # Search by text
     r = client.get(f"/posts/{post_id}/comments", params={"text": "FindMe123"})
+
     assert r.status_code == 200
     data = r.json()
     assert len(data) == 1
-    assert "FindMe123" in data[0]["text"]
+    assert data[0]["text"] == "FindMe123"
 
 
 def test_search_comments_by_user():
-    post_data = {"image": "post3.png", "text": "Yet another post", "user": "alice"}
-    post_id = client.post("/posts/", json=post_data).json()["id"]
+    post_id = create_post(text="Post X", user="alice", image="p3.png")
 
-    client.post(
-        f"/posts/{post_id}/comments", json={"text": "Comment1", "user": "user123"}
-    )
-    client.post(
-        f"/posts/{post_id}/comments", json={"text": "Comment2", "user": "user123"}
-    )
-    client.post(
-        f"/posts/{post_id}/comments", json={"text": "Comment3", "user": "otheruser"}
-    )
+    client.post(f"/posts/{post_id}/comments", json={"text": "C1", "user": "u1"})
+    client.post(f"/posts/{post_id}/comments", json={"text": "C2", "user": "u1"})
+    client.post(f"/posts/{post_id}/comments", json={"text": "C3", "user": "u2"})
 
-    # Search by user
-    r = client.get(f"/posts/{post_id}/comments", params={"user": "user123"})
+    r = client.get(f"/posts/{post_id}/comments", params={"user": "u1"})
+
     assert r.status_code == 200
     data = r.json()
-    assert all(comment["user"] == "user123" for comment in data)
     assert len(data) == 2
+    assert all(c["user"] == "u1" for c in data)
 
 
 def test_search_comments_by_text_and_user():
-    post_data = {"image": "post4.png", "text": "Post for combo test", "user": "alice"}
-    post_id = client.post("/posts/", json=post_data).json()["id"]
+    post_id = create_post(text="Combo post", user="alice", image="p4.png")
 
     client.post(
-        f"/posts/{post_id}/comments",
-        json={"text": "UniqueTextComment", "user": "unique_user"},
+        f"/posts/{post_id}/comments", json={"text": "UniqueABC", "user": "userA"}
     )
     client.post(
-        f"/posts/{post_id}/comments",
-        json={"text": "UniqueTextComment", "user": "other_user"},
+        f"/posts/{post_id}/comments", json={"text": "UniqueABC", "user": "userB"}
     )
 
-    # Search by text + user
     r = client.get(
-        f"/posts/{post_id}/comments",
-        params={"text": "UniqueTextComment", "user": "unique_user"},
+        f"/posts/{post_id}/comments", params={"text": "UniqueABC", "user": "userA"}
     )
+
     assert r.status_code == 200
     data = r.json()
-    assert data[0]["user"] == "unique_user"
-    assert "UniqueTextComment" in data[0]["text"]
+    assert len(data) == 1
+    assert data[0]["text"] == "UniqueABC"
+    assert data[0]["user"] == "userA"
 
 
 def test_search_comments_no_results():
-    post_data = {"image": "post5.png", "text": "Empty search post", "user": "alice"}
-    post_id = client.post("/posts/", json=post_data).json()["id"]
+    post_id = create_post(text="Empty search", user="alice", image="p5.png")
 
     r = client.get(
-        f"/posts/{post_id}/comments", params={"text": "nonexistent", "user": "nouser"}
+        f"/posts/{post_id}/comments", params={"text": "doesnotexist", "user": "no_user"}
     )
+
     assert r.status_code == 404
-    data = r.json()
-    assert data["detail"] == "No comments found for this post"
+    assert r.json()["detail"] == "No comments found for this post"

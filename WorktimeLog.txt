@@ -5,4 +5,4 @@ Armin: Application: 3,0h
 
 Exercise 2
 
-Andreas: REST Api: 4.1 h
+Andreas: REST Api: 5,0 h

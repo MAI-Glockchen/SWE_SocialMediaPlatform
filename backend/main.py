@@ -5,9 +5,9 @@ from contextlib import asynccontextmanager
 from fastapi import Depends, FastAPI, HTTPException, Query
 from sqlmodel import Session, select
 
-from app.database import get_session, init_db
-from app.models import Comment, Post
-from app.schemas import CommentCreate, CommentRead, PostCreate, PostRead
+from backend.database import get_session, init_db
+from backend.models import Comment, Post
+from backend.schemas import CommentCreate, CommentRead, PostCreate, PostRead
 
 
 # -----------------------

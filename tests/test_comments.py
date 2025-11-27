@@ -4,7 +4,7 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlmodel import Session, SQLModel, create_engine
 
-from app.main import app, get_session_dep
+from backend.main import app, get_session_dep
 
 # Use file-based SQLite for tests so tables persist across connections
 TEST_DB_URL = "sqlite:///./test.db"

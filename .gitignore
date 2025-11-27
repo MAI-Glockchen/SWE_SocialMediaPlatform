@@ -7,4 +7,5 @@ venv/
 # --- Local database ---
 /sqlite/
 .idea/
-
+# --- Angular frontend ---
+frontend/node_modules/

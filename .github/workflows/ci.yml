@@ -86,15 +86,15 @@ jobs:
           context: ./backend
           file: ./backend/Dockerfile
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/swe-socialmedia-backend:${{ github.sha }}
+          tags: ghcr.io/${{ toLower(github.repository_owner) }}/swe-socialmedia-backend:${{ github.sha }}
 
       - name: Build and push frontend image (sha tag)
         uses: docker/build-push-action@v5
         with:
-          context: ./frontend/app
-          file: ./frontend/app/Dockerfile
+          context: ./frontend
+          file: ./frontend/Dockerfile
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/swe-socialmedia-frontend:${{ github.sha }}
+          tags: ghcr.io/${{ toLower(github.repository_owner) }}/swe-socialmedia-frontend:${{ github.sha }}
 
       - name: Tag & push backend image as latest when pushing to main
         if: ${{ github.ref == 'refs/heads/main' }}
@@ -103,14 +103,14 @@ jobs:
           context: ./backend
           file: ./backend/Dockerfile
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/swe-socialmedia-backend:latest
+          tags: ghcr.io/${{ toLower(github.repository_owner) }}/swe-socialmedia-backend:latest
 
       - name: Tag & push frontend image as latest when pushing to main
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/build-push-action@v5
         with:
-          context: ./frontend/app
-          file: ./frontend/app/Dockerfile
+          context: ./frontend
+          file: ./frontend/Dockerfile
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/swe-socialmedia-frontend:latest
+          tags: ghcr.io/${{ toLower(github.repository_owner) }}/swe-socialmedia-frontend:latest
       

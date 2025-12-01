@@ -1,43 +1,42 @@
 import base64
 from datetime import datetime
+from typing import Optional
 
-from pydantic import BaseModel
-
+from pydantic import BaseModel, ConfigDict
 
 class PostCreate(BaseModel):
-    image: str | None = None
+    image: Optional[str] = None    # base64 or data URL
     text: str
     user: str
 
-    def to_model_bytes(self) -> bytes:
-        return base64.b64decode(self.image.encode())
-
-
 class PostRead(BaseModel):
     id: int
-    image: str | None = None  # API returns Base64 string
+    image: Optional[str] = None      # base64 string for frontend
     text: str
     user: str
     created_at: datetime
 
-    model_config = {"from_attributes": True}
+    model_config = ConfigDict(from_attributes=True)
 
     @classmethod
-    def from_orm_bytes(cls, obj):
-        return cls(
-            id=obj.id,
-            image=base64.b64encode(obj.image).decode(),
-            text=obj.text,
-            user=obj.user,
-            created_at=obj.created_at,
-        )
+    def from_orm_bytes(cls, post):
+        """
+        Convert a SQLModel Post (with bytes) into a Pydantic model where
+        image is base64 encoded for the Angular frontend.
+        """
+        # Convert bytes → base64 string
+        encoded = base64.b64encode(post.image).decode("utf-8") if post.image else None
 
+        # Validate object using Pydantic v2 API
+        model = cls.model_validate(post, from_attributes=True)
+
+        # Override image with encoded version
+        return model.model_copy(update={"image": encoded})
 
 class CommentCreate(BaseModel):
     text: str
     user: str
-
-
+    
 class CommentRead(BaseModel):
     super_id: int
     comment_id: int
@@ -45,4 +44,11 @@ class CommentRead(BaseModel):
     user: str
     created_at: datetime
 
-    model_config = {"from_attributes": True}
+    model_config = ConfigDict(from_attributes=True)
+
+    @classmethod
+    def from_orm(cls, obj):
+        """
+        Pydantic v2 style ORM conversion.
+        """
+        return cls.model_validate(obj, from_attributes=True)

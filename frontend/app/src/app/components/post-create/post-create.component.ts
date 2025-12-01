@@ -1,12 +1,14 @@
 import { Component } from '@angular/core';
 import { PostsService } from '../../../../services/posts.service';
-import { NgIf } from '@angular/common';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-post-create',
   standalone: true,
-  imports: [NgIf],
   templateUrl: './post-create.component.html',
+  styleUrls: ['./post-create.component.css'],
+  imports: [CommonModule, FormsModule]
 })
 export class PostCreateComponent {
   text = '';

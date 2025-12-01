@@ -2,18 +2,19 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { PostsService } from '../../../../services/posts.service';
 import { CommentsService } from '../../../../services/comments.service';
-import { NgIf, NgFor } from '@angular/common';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-post-detail',
   standalone: true,
-  imports: [NgIf, NgFor],
   templateUrl: './post-detail.component.html',
+  styleUrls: ['./post-detail.component.css'],
+  imports: [CommonModule, FormsModule]
 })
 export class PostDetailComponent implements OnInit {
   post: any = null;
   comments: any[] = [];
-
   newText = '';
   newUser = '';
 
@@ -25,7 +26,6 @@ export class PostDetailComponent implements OnInit {
 
   ngOnInit() {
     const id = Number(this.route.snapshot.paramMap.get('id'));
-
     this.posts.getById(id).subscribe(p => this.post = p);
     this.commentsService.getByPost(id).subscribe(c => this.comments = c);
   }
@@ -36,7 +36,6 @@ export class PostDetailComponent implements OnInit {
 
   addComment() {
     const id = Number(this.route.snapshot.paramMap.get('id'));
-
     this.commentsService.create(id, {
       text: this.newText,
       user: this.newUser

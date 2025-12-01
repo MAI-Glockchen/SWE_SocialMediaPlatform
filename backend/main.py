@@ -49,38 +49,50 @@ app.add_middleware(
 @app.post("/posts/", response_model=PostRead)
 def create_post(post: PostCreate, session: Session = Depends(get_session_dep)):
 
-    if post.image is None:
-        raise HTTPException(400, "Image field missing")
+    # =============================================
+    # 0) Handle optional image (None or empty)
+    # =============================================
+    if not post.image:
+        image_bytes = None
+    else:
+        raw = post.image.strip()
 
-    raw = post.image.strip()
+        # ------------------------------------------
+        # 1) Data URL format (data:image/png;base64,...)
+        # ------------------------------------------
+        if raw.startswith("data:"):
+            match = re.match(r"data:.*?;base64,(.*)", raw, re.DOTALL)
+            if not match:
+                raise HTTPException(400, "Invalid data URL format")
+            raw = match.group(1)
 
-    # -------------------------------
-    # 1) Falls es eine Data-URL ist:
-    # -------------------------------
-    if raw.startswith("data:"):
-        match = re.match(r"data:.*?;base64,(.*)", raw, re.DOTALL)
-        if not match:
-            raise HTTPException(400, "Invalid data URL format")
-        raw = match.group(1)
+        # ------------------------------------------
+        # 2) Remove all whitespace/newlines
+        # ------------------------------------------
+        raw = raw.replace("\n", "").replace("\r", "").replace(" ", "")
 
-    # -------------------------------
-    # 2) Entferne Whitespaces/Newlines
-    # -------------------------------
-    raw = raw.replace("\n", "").replace("\r", "").replace(" ", "")
+        # ------------------------------------------
+        # 3) Decode base64 → bytes
+        # ------------------------------------------
+        try:
+            image_bytes = base64.b64decode(raw, validate=False)
+        except Exception:
+            raise HTTPException(400, "Invalid base64 image string")
 
-    # -------------------------------
-    # 3) Base64 decodieren
-    # -------------------------------
-    try:
-        image_bytes = base64.b64decode(raw, validate=False)
-    except Exception:
-        raise HTTPException(400, "Invalid base64 image string")
+    # =============================================
+    # Create post in DB
+    # =============================================
+    new_post = Post(
+        image=image_bytes,
+        text=post.text,
+        user=post.user
+    )
 
-    new_post = Post(image=image_bytes, text=post.text, user=post.user)
     session.add(new_post)
     session.commit()
     session.refresh(new_post)
 
+    # Convert to Pydantic v2 model (base64 → string)
     return PostRead.from_orm_bytes(new_post)
 
 

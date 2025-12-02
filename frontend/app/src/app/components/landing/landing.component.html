@@ -16,7 +16,10 @@
 
 @for (post of posts; track post.id) {
   <div style="border:1px solid #aaa; padding:10px; margin-bottom:10px;">
-    <img [src]="img(post)" height="120">
+    <img
+      [src]="post.image ? ('data:image/png;base64,' + post.image) : '/assets/default.png'"
+      height="120"
+    >
     <h3>{{ post.user }}</h3>
     <p>{{ post.text }}</p>
     <a [routerLink]="['/post', post.id]">Open</a>

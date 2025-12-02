@@ -19,19 +19,18 @@ class PostRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     @classmethod
-    def from_orm_bytes(cls, post):
-        """
-        Convert a SQLModel Post (with bytes) into a Pydantic model where
-        image is base64 encoded for the Angular frontend.
-        """
-        # Convert bytes → base64 string
-        encoded = base64.b64encode(post.image).decode("utf-8") if post.image else None
+    def from_orm_bytes(cls, obj):
+        return cls(
+            id=obj.id,
+            text=obj.text,
+            user=obj.user,
+            created_at=obj.created_at,
+            image=(
+                base64.b64encode(obj.image).decode()
+                if obj.image else None
+            )
+        )
 
-        # Validate object using Pydantic v2 API
-        model = cls.model_validate(post, from_attributes=True)
-
-        # Override image with encoded version
-        return model.model_copy(update={"image": encoded})
 
 class CommentCreate(BaseModel):
     text: str

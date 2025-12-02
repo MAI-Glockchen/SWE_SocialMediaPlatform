@@ -1,7 +1,10 @@
 <h2>Post</h2>
 
 @if (post) {
-  <img [src]="img(post)" height="150">
+  <img
+    [src]="post.image ? ('data:image/png;base64,' + post.image) : '/assets/default.png'"
+    height="150"
+  >
   <h3>{{ post.user }}</h3>
   <p>{{ post.text }}</p>
 }

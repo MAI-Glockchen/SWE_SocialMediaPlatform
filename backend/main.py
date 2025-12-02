@@ -49,35 +49,46 @@ app.add_middleware(
 @app.post("/posts/", response_model=PostRead)
 def create_post(post: PostCreate, session: Session = Depends(get_session_dep)):
 
-    # =============================================
-    # 0) Handle optional image (None or empty)
-    # =============================================
-    if not post.image:
-        image_bytes = None
-    else:
-        raw = post.image.strip()
+    raw = post.image
 
-        # ------------------------------------------
-        # 1) Data URL format (data:image/png;base64,...)
-        # ------------------------------------------
+    # 1) No image provided -> keep None
+    if raw is None or raw.strip() == "":
+        image_bytes = None
+
+    # 2) Frontend default placeholder -> store None
+    elif raw.startswith("/assets/"):
+        image_bytes = None
+
+    else:
+        raw = raw.strip()
+
+        # 3) Data URL
         if raw.startswith("data:"):
             match = re.match(r"data:.*?;base64,(.*)", raw, re.DOTALL)
             if not match:
                 raise HTTPException(400, "Invalid data URL format")
             raw = match.group(1)
 
-        # ------------------------------------------
-        # 2) Remove all whitespace/newlines
-        # ------------------------------------------
+        # 4) Clean whitespace
         raw = raw.replace("\n", "").replace("\r", "").replace(" ", "")
 
-        # ------------------------------------------
-        # 3) Decode base64 → bytes
-        # ------------------------------------------
+        # 5) Decode base64
         try:
             image_bytes = base64.b64decode(raw, validate=False)
         except Exception:
             raise HTTPException(400, "Invalid base64 image string")
+
+    new_post = Post(
+        image=image_bytes,
+        text=post.text,
+        user=post.user
+    )
+
+    session.add(new_post)
+    session.commit()
+    session.refresh(new_post)
+
+    return PostRead.from_orm_bytes(new_post)
 
     # =============================================
     # Create post in DB

@@ -1,31 +1,48 @@
-<h2>Post</h2>
+<h2 class="text-2xl font-bold mb-4">Post</h2>
 
 @if (post) {
-  <img
-    [src]="post.image ? ('data:image/png;base64,' + post.image) : 'default.png'"
-    height="150"
-  >
-  <h3>{{ post.user }}</h3>
-  <p>{{ post.text }}</p>
-}
-
-<hr>
-
-<h2>Comments</h2>
-
-@for (c of comments; track c.comment_id) {
-  <div style="border:1px solid #aaa; padding:10px; margin-bottom:10px;">
-    <strong>{{ c.user }}</strong>
-    <p>{{ c.text }}</p>
+  <div class="border rounded-lg p-4 shadow-sm mb-6">
+    <img
+      class="rounded mb-3"
+      [src]="post.image ? ('data:image/png;base64,' + post.image) : '/default.png'"
+      height="150"
+    >
+    <h3 class="text-lg font-semibold">{{ post.user }}</h3>
+    <p class="text-gray-700">{{ post.text }}</p>
   </div>
 }
 
-<hr>
+<h2 class="text-2xl font-bold mb-4">Comments</h2>
 
-<h2>Add Comment</h2>
+<div class="flex flex-col gap-4 mb-6">
+  @for (c of comments; track c.comment_id) {
+    <div class="border rounded-lg p-3 shadow-sm">
+      <strong class="block text-blue-700">{{ c.user }}</strong>
+      <p class="text-gray-700">{{ c.text }}</p>
+    </div>
+  }
+</div>
 
-<input placeholder="User" [(ngModel)]="newUser">
-<br>
-<textarea placeholder="Comment" rows="3" [(ngModel)]="newText"></textarea>
-<br>
-<button (click)="submitComment()">Send</button>
+<h2 class="text-2xl font-bold mb-4">Add Comment</h2>
+
+<div class="flex flex-col gap-3 max-w-xl">
+  <input
+    class="border px-3 py-2 rounded"
+    placeholder="User"
+    [(ngModel)]="newUser"
+  >
+
+  <textarea
+    class="border px-3 py-2 rounded"
+    placeholder="Comment"
+    rows="3"
+    [(ngModel)]="newText"
+  ></textarea>
+
+  <button
+    class="bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+    (click)="submitComment()"
+  >
+    Send
+  </button>
+</div>

@@ -54,6 +54,6 @@ export class LandingComponent {
 
   img(post: Post) {
     if (post.image) return `data:image/png;base64,${post.image}`;
-    return '/assets/default.png'; // default placeholder image
+    return 'default.png'; // default placeholder image
   }
 }

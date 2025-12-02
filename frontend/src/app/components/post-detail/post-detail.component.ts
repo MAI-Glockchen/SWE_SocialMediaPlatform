@@ -56,6 +56,6 @@ export class PostDetailComponent {
 
   img(post: Post | null) {
     if (post?.image) return `data:image/png;base64,${post.image}`;
-    return '/assets/default.png';
+    return 'default.png';
   }
 }

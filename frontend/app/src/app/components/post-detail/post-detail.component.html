@@ -1,14 +1,28 @@
-<div *ngIf="post">
-  <img *ngIf="img()" [src]="img()" />
-  <h2>{{ post.user }}</h2>
+<h2>Post</h2>
+
+@if (post) {
+  <img [src]="img(post)" height="150">
+  <h3>{{ post.user }}</h3>
   <p>{{ post.text }}</p>
-</div>
+}
 
-<h3>Comments</h3>
-<div *ngFor="let c of comments">
-  <b>{{ c.user }}</b>: {{ c.text }}
-</div>
+<hr>
 
-<input placeholder="User" [(ngModel)]="newUser" />
-<input placeholder="Comment" [(ngModel)]="newText" />
-<button (click)="addComment()">Add Comment</button>
+<h2>Comments</h2>
+
+@for (c of comments; track c.comment_id) {
+  <div style="border:1px solid #aaa; padding:10px; margin-bottom:10px;">
+    <strong>{{ c.user }}</strong>
+    <p>{{ c.text }}</p>
+  </div>
+}
+
+<hr>
+
+<h2>Add Comment</h2>
+
+<input placeholder="User" [(ngModel)]="newUser">
+<br>
+<textarea placeholder="Comment" rows="3" [(ngModel)]="newText"></textarea>
+<br>
+<button (click)="submitComment()">Send</button>

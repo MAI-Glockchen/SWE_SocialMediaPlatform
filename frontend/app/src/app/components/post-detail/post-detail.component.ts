@@ -1,44 +1,61 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { PostsService } from '../../../../services/posts.service';
-import { CommentsService } from '../../../../services/comments.service';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { PostsService, Post } from '../../../../services/posts.service';
+import { CommentsService, CommentCreate, Comment } from '../../../../services/comments.service';
 
 @Component({
   selector: 'app-post-detail',
   standalone: true,
+  imports: [FormsModule],
   templateUrl: './post-detail.component.html',
-  styleUrls: ['./post-detail.component.css'],
-  imports: [CommonModule, FormsModule]
 })
-export class PostDetailComponent implements OnInit {
-  post: any = null;
-  comments: any[] = [];
-  newText = '';
+export class PostDetailComponent {
+
+  post: Post | null = null;
+  comments: Comment[] = [];
+
   newUser = '';
+  newText = '';
+
+  id = 0;
 
   constructor(
     private route: ActivatedRoute,
-    private posts: PostsService,
+    private postsService: PostsService,
     private commentsService: CommentsService
   ) {}
 
   ngOnInit() {
-    const id = Number(this.route.snapshot.paramMap.get('id'));
-    this.posts.getById(id).subscribe(p => this.post = p);
-    this.commentsService.getByPost(id).subscribe(c => this.comments = c);
+    this.id = Number(this.route.snapshot.paramMap.get('id'));
+    this.loadPost();
+    this.loadComments();
   }
 
-  img() {
-    return this.post?.image ? `data:image/png;base64,${this.post.image}` : null;
+  loadPost() {
+    this.postsService.getById(this.id).subscribe(p => this.post = p);
   }
 
-  addComment() {
-    const id = Number(this.route.snapshot.paramMap.get('id'));
-    this.commentsService.create(id, {
-      text: this.newText,
-      user: this.newUser
-    }).subscribe(c => this.comments.push(c));
+  loadComments() {
+    this.commentsService.getAllForPost(this.id)
+      .subscribe(c => this.comments = c);
+  }
+
+  submitComment() {
+    const payload: CommentCreate = {
+      user: this.newUser,
+      text: this.newText
+    };
+
+    this.commentsService.create(this.id, payload).subscribe(() => {
+      this.newUser = '';
+      this.newText = '';
+      this.loadComments();
+    });
+  }
+
+  img(post: Post | null) {
+    if (post?.image) return `data:image/png;base64,${post.image}`;
+    return '/assets/default.png';
   }
 }

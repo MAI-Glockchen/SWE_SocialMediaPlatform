@@ -12,4 +12,4 @@ Exercise 3
 
 Andreas: --: 0,0 h
 Armin: Additional Angular Frontend & Angular Tests: 10,0h
-Armin: --: 0,0h
+Armin: Dockerize Python Backend: 0,5h

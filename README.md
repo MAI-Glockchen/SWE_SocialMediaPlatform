@@ -112,6 +112,25 @@ poetry run pytest
 ```
 or the respective uv command.
 
+### Backend Docker Image
+
+The backend is containerized and automatically built via GitHub Actions when doing a git push.
+Docker images are pushed to GitHub Container Registry at:
+
+ghcr.io/mai-glockchen/swe-social-backend:sha
+
+
+with tags for the commit SHA and latest (for main branch pushes).
+
+You can pull and run the image locally:
+
+docker pull ghcr.io/<owner>/swe-social-backend:latest
+docker run -p 8000:8000 ghcr.io/<owner>/swe-social-backend:latest
+
+
+This will run the backend FastAPI app on localhost:8000.
+
+
 ---
 
 # Frontend (Angular 21 + Vitest)

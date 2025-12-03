@@ -4,16 +4,8 @@ import { RouterOutlet, RouterLink } from '@angular/router';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [
-    RouterOutlet,
-    RouterLink
-  ],
+  imports: [RouterOutlet, RouterLink],
   templateUrl: './app.html',
   styleUrls: ['./app.css']
 })
-export class App {
-
-  toggleDarkMode() {
-    document.documentElement.classList.toggle('dark');
-  }
-}
+export class App {}

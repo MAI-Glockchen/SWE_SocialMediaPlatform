@@ -57,17 +57,17 @@ jobs:
         run: npm run build
 
       - name: Check if WorktimeLog.txt changed if merging into main
-              if: github.base_ref == 'main'
-              run: |
-                echo "🔍 Checking WorktimeLog.txt for changes..."
-                # Skip check if origin/main does not exist
-                if git rev-parse --verify origin/main >/dev/null 2>&1; then
-                    if ! git diff --name-only origin/main...HEAD | grep -q 'WorktimeLog.txt'; then
-                        echo "❌ Error: WorktimeLog.txt must be changed when merging to main."
-                        exit 1
-                    else
-                        echo "✅ WorktimeLog.txt change detected."
-                    fi
-                else
-                    echo "ℹ️ origin/main not found, skipping WorkTimeLog check."
-                fi
+        if: github.base_ref == 'main'
+        run: |
+          echo "🔍 Checking WorktimeLog.txt for changes..."
+          if git rev-parse --verify origin/main >/dev/null 2>&1; then
+              if ! git diff --name-only origin/main...HEAD | grep -q 'WorktimeLog.txt'; then
+                  echo "❌ Error: WorktimeLog.txt must be changed when merging to main."
+                  exit 1
+              else
+                  echo "✅ WorktimeLog.txt change detected."
+              fi
+          else
+              echo "ℹ️ origin/main not found, skipping WorkTimeLog check."
+          fi
+

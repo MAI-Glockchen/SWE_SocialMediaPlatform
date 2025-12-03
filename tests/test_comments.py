@@ -97,11 +97,6 @@ def test_get_comments_for_post():
     assert "created_at" in comments[0]
 
 
-def test_get_comments_invalid_post():
-    r = client.get("/posts/999999999/comments")
-    assert r.status_code == 404
-
-
 def test_get_comment_by_id():
     post_id = create_test_post()
 

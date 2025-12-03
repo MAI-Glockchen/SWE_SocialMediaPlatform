@@ -30,10 +30,9 @@ jobs:
       - name: Install uv
         run: pip install uv
 
-      # Install backend deps (ignore workspace metadata)
       - name: Backend dependency install
-        working-directory: backend
-        run: uv sync --frozen --no-workspace
+        working-directory: .
+        run: uv sync --frozen
 
       - name: Run backend tests
         working-directory: backend

@@ -7,3 +7,9 @@ Exercise 2
 
 Andreas: REST Api: 5,0 h
 Armin: Angular Frontend: 4,0h
+
+Exercise 3
+
+Andreas: --: 0,0 h
+Armin: Additional Angular Frontend & Angular Tests: 10,0h
+Armin: --: 0,0h

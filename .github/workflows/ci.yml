@@ -1,4 +1,4 @@
-name: Python CI & Deploy Check
+name: WalLoh Social CI & Deploy Check
 
 on:
   push:
@@ -16,42 +16,58 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # alle Branches holen, nötig für Vergleich mit main
+          fetch-depth: 0  # required so origin/main exists
 
-      - name: Setup Python 3.12
+      - name: Install Python
         uses: actions/setup-python@v5
         with:
-          python-version: 3.12
+          python-version: "3.14"
 
       - name: Install uv
         run: pip install uv
 
-      - name: Install dependencies via uv
-        run: |
-          # Install all packages according to uv.lock (frozen)
-          uv sync --frozen
+      # Install backend deps (ignore workspace metadata)
+      - name: Backend dependency install
+        working-directory: backend
+        run: uv sync --frozen --no-workspace
 
-      - name: Lint code
-        run: uv run flake8 . --count --exit-zero --max-line-length=127
-
-      - name: Run tests
+      - name: Run backend tests
+        working-directory: backend
         run: uv run pytest -v
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Run frontend tests
+        working-directory: frontend
+        run: npx vitest run --reporter=default
+
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build
+
       - name: Check if WorktimeLog.txt changed if merging into main
-        if: github.base_ref == 'main'
-        run: |
-          echo "🔍 Checking WorktimeLog.txt for changes..."
-          # Skip check if origin/main does not exist
-          if git rev-parse --verify origin/main >/dev/null 2>&1; then
-              if ! git diff --name-only origin/main...HEAD | grep -q 'WorktimeLog.txt'; then
-                  echo "❌ Error: WorktimeLog.txt must be changed when merging to main."
-                  exit 1
-              else
-                  echo "✅ WorktimeLog.txt change detected."
-              fi
-          else
-              echo "ℹ️ origin/main not found, skipping WorkTimeLog check."
-          fi
+              if: github.base_ref == 'main'
+              run: |
+                echo "🔍 Checking WorktimeLog.txt for changes..."
+                # Skip check if origin/main does not exist
+                if git rev-parse --verify origin/main >/dev/null 2>&1; then
+                    if ! git diff --name-only origin/main...HEAD | grep -q 'WorktimeLog.txt'; then
+                        echo "❌ Error: WorktimeLog.txt must be changed when merging to main."
+                        exit 1
+                    else
+                        echo "✅ WorktimeLog.txt change detected."
+                    fi
+                else
+                    echo "ℹ️ origin/main not found, skipping WorkTimeLog check."
+                fi

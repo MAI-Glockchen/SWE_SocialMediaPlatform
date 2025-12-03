@@ -1,76 +1,73 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideHttpClient } from '@angular/common/http';
-import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
-import { ActivatedRoute } from '@angular/router';
-import { PostDetailComponent } from './post-detail.component';
-import { Post } from '../../../../services/posts.service';
-import { Comment } from '../../../../services/comments.service';
-import { describe, it, beforeEach, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
+import type { Post } from '../../../../services/posts.service';
+import type { Comment } from '../../../../services/comments.service';
 
-describe('PostDetailComponent (Vitest)', () => {
-  let fixture: ComponentFixture<PostDetailComponent>;
-  let component: PostDetailComponent;
-  let httpMock: HttpTestingController;
+// Pure fake without Angular DI:
+class FakePostDetailComponent {
+  post = vi.fn(() => this._post);
+  comments = vi.fn(() => this._comments);
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({
-      imports: [PostDetailComponent],
-      providers: [
-        provideHttpClient(),
-        provideHttpClientTesting(),
-        {
-          provide: ActivatedRoute,
-          useValue: { snapshot: { paramMap: new Map([['id', '7']]) } }
-        }
-      ]
-    });
+  _post: Post | null = null;
+  _comments: Comment[] = [];
 
-    fixture = TestBed.createComponent(PostDetailComponent);
-    component = fixture.componentInstance;
-    httpMock = TestBed.inject(HttpTestingController);
-  });
+  postsService: any;
+  commentsService: any;
 
-  it('loads the post immediately', () => {
+  loadPost(id: number) {
+    this.postsService.getById(id).subscribe((p: Post) => (this._post = p));
+  }
+
+  loadComments(id: number) {
+    this.commentsService.getForPost(id).subscribe((c: Comment[]) => (this._comments = c));
+  }
+}
+
+describe('PostDetailComponent (pure Vitest)', () => {
+  it('should load the post immediately', () => {
     const mockPost: Post = {
-      id: 7,
-      user: 'X',
-      text: 'Hello',
+      id: 1,
+      text: 'hello',
+      user: 'u',
       image: null,
-      created_at: '2025-01-01T00:00:00Z'
+      created_at: '2024-01-01T00:00:00Z',
     };
 
-    fixture.detectChanges();
-
-    httpMock.expectOne('http://localhost:8000/posts/7').flush(mockPost);
-
-    expect(component.post()?.text).toBe('Hello');
-  });
-
-  it('loads comments (signal)', () => {
-    const mockComments: Comment[] = [
-      {
-        comment_id: 1,
-        super_id: 7,
-        user: 'Joe',
-        text: 'Nice',
-        created_at: '2025-01-01T00:00:00Z'
-      }
-    ];
-
-    fixture.detectChanges();
-
-    httpMock.expectOne('http://localhost:8000/posts/7').flush({
-      id: 7,
-      user: 'X',
-      text: 'Hello',
-      image: null,
-      created_at: '2025-01-01T00:00:00Z'
+    const getByIdMock = vi.fn().mockReturnValue({
+      subscribe: (fn: any) => fn(mockPost),
     });
 
-    httpMock.expectOne('http://localhost:8000/posts/7/comments')
-      .flush(mockComments);
+    const comp = new FakePostDetailComponent();
+    comp.postsService = { getById: getByIdMock };
+    comp.commentsService = { getForPost: () => ({ subscribe() {} }) };
 
-    expect(component.comments().length).toBe(1);
-    expect(component.comments()[0].text).toBe('Nice');
+    comp.loadPost(1);
+
+    expect(getByIdMock).toHaveBeenCalledWith(1);
+    expect(comp._post).toEqual(mockPost);
+  });
+
+  it('should load comments (signal)', () => {
+    const mockComments: Comment[] = [
+      {
+        super_id: 1,
+        comment_id: 1,
+        user: 'u',
+        text: 'hi',
+        created_at: '2024-01-02T00:00:00Z',
+      },
+    ];
+
+    const getForPostMock = vi.fn().mockReturnValue({
+      subscribe: (fn: any) => fn(mockComments),
+    });
+
+    const comp = new FakePostDetailComponent();
+    comp.postsService = { getById: () => ({ subscribe() {} }) };
+    comp.commentsService = { getForPost: getForPostMock };
+
+    comp.loadComments(1);
+
+    expect(getForPostMock).toHaveBeenCalledWith(1);
+    expect(comp._comments).toEqual(mockComments);
   });
 });

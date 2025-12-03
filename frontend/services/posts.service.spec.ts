@@ -1,58 +1,44 @@
-import { TestBed } from '@angular/core/testing';
-import { provideHttpClient } from '@angular/common/http';
-import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
-import { PostsService, Post, PostCreate } from './posts.service';
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
+import { PostsService } from './posts.service';
+import { HttpClient } from '@angular/common/http';
 
-describe('PostsService (Vitest)', () => {
-  let service: PostsService;
-  let httpMock: HttpTestingController;
-
-  beforeEach(() => {
-    TestBed.configureTestingModule({
-      providers: [
-        PostsService,
-        provideHttpClient(),
-        provideHttpClientTesting(),
-      ]
-    });
-    service = TestBed.inject(PostsService);
-    httpMock = TestBed.inject(HttpTestingController);
-  });
-
+describe('PostsService (pure Vitest)', () => {
   it('should fetch all posts', () => {
-    const mockPosts: Post[] = [
-      { id: 1, user: 'A', text: 'Hello', image: null, created_at: '2025-01-01T00:00:00Z' }
-    ];
-
-    service.getAll().subscribe(res => {
-      expect(res.length).toBe(1);
-      expect(res[0].user).toBe('A');
+    const getMock = vi.fn().mockReturnValue({
+      subscribe: (fn: any) => fn([])
     });
 
-    const req = httpMock.expectOne('http://localhost:8000/posts/');
-    expect(req.request.method).toBe('GET');
-    req.flush(mockPosts);
+    const http = { get: getMock } as unknown as HttpClient;
+    const service = new PostsService(http);
+
+    service.getAll().subscribe(() => {});
+
+    expect(getMock).toHaveBeenCalledWith(
+      'http://localhost:8000/posts/'
+    );
   });
 
-  it('should create a post using PostCreate payload', () => {
-    const payload: PostCreate = { user: 'A', text: 'Hello', image: null };
-
-    const mockResponse: Post = {
-      id: 99,
-      user: 'A',
-      text: 'Hello',
-      image: null,
-      created_at: '2025-01-01T00:00:00Z'
-    };
-
-    service.create(payload).subscribe(res => {
-      expect(res.id).toBe(99);
-      expect(res.user).toBe('A');
+  it('should create a post', () => {
+    const postMock = vi.fn().mockReturnValue({
+      subscribe: (fn: any) => fn({})
     });
 
-    const req = httpMock.expectOne('http://localhost:8000/posts/');
-    expect(req.request.method).toBe('POST');
-    req.flush(mockResponse);
+    const http = { post: postMock } as unknown as HttpClient;
+    const service = new PostsService(http);
+
+    service.create({
+      user: 'u',
+      text: 'hello',
+      image: null
+    }).subscribe(() => {});
+
+    expect(postMock).toHaveBeenCalledWith(
+      'http://localhost:8000/posts/',
+      {
+        user: 'u',
+        text: 'hello',
+        image: null
+      }
+    );
   });
 });

@@ -1,63 +1,42 @@
-import { TestBed } from '@angular/core/testing';
-import { provideHttpClient } from '@angular/common/http';
-import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
-import { CommentsService, Comment, CommentCreate } from './comments.service';
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
+import { CommentsService } from './comments.service';
+import { HttpClient } from '@angular/common/http';
 
-describe('CommentsService (Vitest)', () => {
-  let service: CommentsService;
-  let httpMock: HttpTestingController;
-
-  beforeEach(() => {
-    TestBed.configureTestingModule({
-      providers: [
-        CommentsService,
-        provideHttpClient(),
-        provideHttpClientTesting(),
-      ]
-    });
-    service = TestBed.inject(CommentsService);
-    httpMock = TestBed.inject(HttpTestingController);
-  });
-
+describe('CommentsService (pure Vitest)', () => {
   it('should fetch comments for a post', () => {
-    const mock: Comment[] = [
-      {
-        comment_id: 1,
-        super_id: 7,
-        user: 'Bob',
-        text: 'Nice!',
-        created_at: '2025-01-01T00:00:00Z'
-      }
-    ];
-
-    service.getForPost(7).subscribe(res => {
-      expect(res.length).toBe(1);
-      expect(res[0].text).toBe('Nice!');
+    const getMock = vi.fn().mockReturnValue({
+      subscribe: (fn: any) => fn([])
     });
 
-    const req = httpMock.expectOne('http://localhost:8000/posts/7/comments');
-    expect(req.request.method).toBe('GET');
-    req.flush(mock);
+    const http = { get: getMock } as unknown as HttpClient;
+    const service = new CommentsService(http);
+
+    service.getForPost(1).subscribe(() => {});
+
+    expect(getMock).toHaveBeenCalledWith(
+      'http://localhost:8000/posts/1/comments'
+    );
   });
 
-  it('should create a comment using CommentCreate payload', () => {
-    const payload: CommentCreate = { user: 'Bob', text: 'Cool' };
-
-    const mock: Comment = {
-      comment_id: 99,
-      super_id: 7,
-      user: 'Bob',
-      text: 'Cool',
-      created_at: '2025-01-01T00:00:00Z'
-    };
-
-    service.create(7, payload).subscribe(res => {
-      expect(res.comment_id).toBe(99);
+  it('should create a comment', () => {
+    const postMock = vi.fn().mockReturnValue({
+      subscribe: (fn: any) => fn({})
     });
 
-    const req = httpMock.expectOne('http://localhost:8000/posts/7/comments');
-    expect(req.request.method).toBe('POST');
-    req.flush(mock);
+    const http = { post: postMock } as unknown as HttpClient;
+    const service = new CommentsService(http);
+
+    service.create(1, {
+      user: 'a',
+      text: 'b'
+    }).subscribe(() => {});
+
+    expect(postMock).toHaveBeenCalledWith(
+      'http://localhost:8000/posts/1/comments',
+      {
+        user: 'a',
+        text: 'b'
+      }
+    );
   });
 });

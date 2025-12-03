@@ -1,10 +1,9 @@
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpClient } from "@angular/common/http";
+import { Injectable } from "@angular/core";
 
 export interface Comment {
-  super_id: number;
   comment_id: number;
+  super_id: number;
   user: string;
   text: string;
   created_at: string;
@@ -17,16 +16,15 @@ export interface CommentCreate {
 
 @Injectable({ providedIn: 'root' })
 export class CommentsService {
-
-  private api = 'http://localhost:8000';
+  private api = 'http://localhost:8000/posts';
 
   constructor(private http: HttpClient) {}
 
-  getAllForPost(postId: number): Observable<Comment[]> {
-    return this.http.get<Comment[]>(`${this.api}/posts/${postId}/comments`);
+  getForPost(postId: number) {
+    return this.http.get<Comment[]>(`${this.api}/${postId}/comments`);
   }
 
-  create(postId: number, payload: CommentCreate): Observable<Comment> {
-    return this.http.post<Comment>(`${this.api}/posts/${postId}/comments`, payload);
+  create(postId: number, payload: CommentCreate) {
+    return this.http.post<Comment>(`${this.api}/${postId}/comments`, payload);
   }
 }

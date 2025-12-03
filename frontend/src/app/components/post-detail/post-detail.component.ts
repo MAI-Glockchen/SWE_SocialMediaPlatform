@@ -1,5 +1,5 @@
 import { Component, signal, inject } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { PostsService } from '../../../../services/posts.service';
 import { CommentsService } from '../../../../services/comments.service';
@@ -9,7 +9,7 @@ import { CommentCreate, Comment } from '../../../../services/comments.service';
 @Component({
   selector: 'app-post-detail',
   standalone: true,
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule],
   templateUrl: './post-detail.component.html',
 })
 export class PostDetailComponent {
@@ -35,7 +35,7 @@ export class PostDetailComponent {
   }
 
   loadComments(id: number) {
-    this.commentsService.getAllForPost(id).subscribe(c => this.comments.set(c));
+    this.commentsService.getForPost(id).subscribe(c => this.comments.set(c));
   }
 
   submitComment() {

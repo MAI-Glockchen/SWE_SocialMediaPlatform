@@ -1,13 +1,12 @@
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpClient } from "@angular/common/http";
+import { Injectable } from "@angular/core";
 
 export interface Post {
   id: number;
   user: string;
   text: string;
-  image: string | null; // base64
-  created_at: string;
+  image: string | null;
+  created_at: string; // backend returns a string timestamp
 }
 
 export interface PostCreate {
@@ -18,20 +17,19 @@ export interface PostCreate {
 
 @Injectable({ providedIn: 'root' })
 export class PostsService {
-
-  private api = 'http://localhost:8000';
+  private api = 'http://localhost:8000/posts';
 
   constructor(private http: HttpClient) {}
 
-  getAll(): Observable<Post[]> {
-    return this.http.get<Post[]>(`${this.api}/posts/`);
+  getAll() {
+    return this.http.get<Post[]>(`${this.api}/`);
   }
 
-  getById(id: number): Observable<Post> {
-    return this.http.get<Post>(`${this.api}/posts/${id}`);
+  getById(id: number) {
+    return this.http.get<Post>(`${this.api}/${id}`);
   }
 
-  create(payload: PostCreate): Observable<Post> {
-    return this.http.post<Post>(`${this.api}/posts/`, payload);
+  create(payload: PostCreate) {
+    return this.http.post<Post>(`${this.api}/`, payload);
   }
 }

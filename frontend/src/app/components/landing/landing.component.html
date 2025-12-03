@@ -29,11 +29,12 @@
 <h2 class="text-2xl font-bold mb-4">Posts</h2>
 
 <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-  @for (post of posts; track post.id) {
+
+  @for (post of posts(); track post.id) {
     <div class="border rounded-lg p-4 shadow-sm hover:shadow-md transition bg-white">
       <img
         class="rounded mb-2 w-full object-cover"
-        [src]="post.image ? ('data:image/png;base64,' + post.image) : '/default.png'"
+        [src]="img(post)"
       >
       <h3 class="text-lg font-semibold">{{ post.user }}</h3>
       <p class="text-gray-700">{{ post.text }}</p>
@@ -46,4 +47,5 @@
       </a>
     </div>
   }
+
 </div>

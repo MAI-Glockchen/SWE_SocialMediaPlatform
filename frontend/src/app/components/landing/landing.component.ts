@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { PostsService, PostCreate, Post } from '../../../../services/posts.service';
@@ -11,21 +11,22 @@ import { PostsService, PostCreate, Post } from '../../../../services/posts.servi
 })
 export class LandingComponent {
 
-  posts: Post[] = [];
+  posts = signal<Post[]>([]);
 
   // new post form fields
   user = '';
   text = '';
   imageBase64: string | null = null;
 
-  constructor(private postsService: PostsService) {}
+  constructor(private postsService: PostsService) { }
 
   ngOnInit() {
     this.loadPosts();
   }
 
   loadPosts() {
-    this.postsService.getAll().subscribe(p => this.posts = p);
+    this.postsService.getAll().subscribe(p => this.posts.set(p));
+
   }
 
   onImage(event: any) {

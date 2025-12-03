@@ -35,7 +35,7 @@ jobs:
         run: uv sync --frozen
 
       - name: Run backend tests
-        working-directory: backend
+        working-directory: .
         run: uv run pytest -v
 
       - name: Setup Node

@@ -14,14 +14,22 @@
 
 <h2 class="text-2xl font-bold mb-4">Comments</h2>
 
-<div class="flex flex-col gap-4 mb-6">
-  @for (c of comments; track c.comment_id) {
-    <div class="border rounded-lg p-3 shadow-sm">
-      <strong class="block text-blue-700">{{ c.user }}</strong>
-      <p class="text-gray-700">{{ c.text }}</p>
-    </div>
-  }
-</div>
+@if (comments && comments.length > 0) {
+
+  <div class="flex flex-col gap-4 mb-6">
+    @for (c of comments; track c.comment_id) {
+      <div class="border rounded-lg p-3 shadow-sm">
+        <strong class="block text-blue-700">{{ c.user }}</strong>
+        <p class="text-gray-700">{{ c.text }}</p>
+      </div>
+    }
+  </div>
+
+} @else {
+
+  <p class="text-gray-500 italic mb-6">No comments yet.</p>
+
+}
 
 <h2 class="text-2xl font-bold mb-4">Add Comment</h2>
 

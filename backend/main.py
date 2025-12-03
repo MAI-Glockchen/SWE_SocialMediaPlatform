@@ -166,8 +166,6 @@ def get_comments_for_post_id(
 
     comments = session.exec(query).all()
 
-    if not comments:
-        raise HTTPException(404, "No comments found for this post")
 
     return [CommentRead.from_orm(comment) for comment in comments]
 

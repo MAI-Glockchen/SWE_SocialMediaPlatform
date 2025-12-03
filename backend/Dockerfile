@@ -1,22 +1,23 @@
-# Backend Dockerfile
-FROM python:3.12-slim
+# --- Base image with Python 3.13 (or 3.12+) ---
+FROM python:3.13-slim AS base
 
-ENV PYTHONUNBUFFERED=1
+# uv: ultra-fast package installer
+RUN pip install --no-cache-dir uv
+
+# Create app dir
 WORKDIR /app
 
-# Install runtime deps
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    && rm -rf /var/lib/apt/lists/*
+# Copy only dependency files first (cache layer)
+COPY pyproject.toml uv.lock ./
 
-# Install minimal runtime dependencies needed by the app
-RUN pip install --upgrade pip && \
-    pip install --no-cache-dir fastapi uvicorn sqlmodel httpx
+# Install dependencies (production only)
+RUN uv sync --frozen --no-dev
 
-# Copy app
-COPY backend/ ./backend/
-COPY sqlite/ ./sqlite/
+# Copy backend code
+COPY backend ./backend
 
+# Expose FastAPI port
 EXPOSE 8000
 
-CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Run API
+CMD ["uv", "run", "uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000"]

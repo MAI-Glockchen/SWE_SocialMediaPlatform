@@ -21,26 +21,40 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # alle Branches holen, nötig für Vergleich mit main
+          fetch-depth: 0  # required so origin/main exists
 
       - name: Setup Python 3.12
         uses: actions/setup-python@v5
         with:
-          python-version: 3.12
+          python-version: "3.14"
 
       - name: Install uv
         run: pip install uv
 
-      - name: Install dependencies via uv
-        run: |
-          # Install all packages according to uv.lock (frozen)
-          uv sync --frozen
+      - name: Backend dependency install
+        working-directory: .
+        run: uv sync --frozen
 
-      - name: Lint code
-        run: uv run flake8 . --count --exit-zero --max-line-length=127
-
-      - name: Run tests
+      - name: Run backend tests
+        working-directory: .
         run: uv run pytest -v
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Run frontend tests
+        working-directory: frontend
+        run: npx vitest run --reporter=default
+
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build
 
       - name: Check if WorktimeLog.txt changed if merging into main
         if: github.base_ref == 'main'
@@ -116,4 +130,3 @@ jobs:
           file: ./frontend/Dockerfile
           push: true
           tags: ghcr.io/${{ env.OWNER_LOWER }}/swe-socialmedia-frontend:latest
-      

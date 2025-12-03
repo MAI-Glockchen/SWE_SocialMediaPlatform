@@ -114,7 +114,7 @@ or the respective uv command.
 
 ### Backend Docker Image
 
-The backend is containerized and automatically built via GitHub Actions when merging into `main`.
+The backend is containerized and automatically built via GitHub Actions when doing a git push.
 Docker images are pushed to GitHub Container Registry at:
 
 ghcr.io/mai-glockchen/swe-social-backend:sha

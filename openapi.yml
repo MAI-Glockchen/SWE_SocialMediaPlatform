@@ -111,12 +111,6 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/CommentRead'
-        '404':
-          description: No comments found for this post
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
 
     post:
       summary: Create a comment for a post

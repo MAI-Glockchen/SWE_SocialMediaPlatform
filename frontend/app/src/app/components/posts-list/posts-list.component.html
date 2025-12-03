@@ -1,9 +1,0 @@
-<h2>Posts</h2>
-
-<div *ngFor="let p of posts" class="post">
-  <img *ngIf="img(p)" [src]="img(p)" />
-  <p><b>{{ p.user }}</b>: {{ p.text }}</p>
-  <a [routerLink]="['/post', p.id]">Details</a>
-</div>
-
-<a routerLink="/create">Create Post</a>

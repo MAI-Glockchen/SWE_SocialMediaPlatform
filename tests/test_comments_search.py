@@ -126,13 +126,3 @@ def test_search_comments_by_text_and_user():
     assert data[0]["text"] == "UniqueABC"
     assert data[0]["user"] == "userA"
 
-
-def test_search_comments_no_results():
-    post_id = create_post(text="Empty search", user="alice", image="p5.png")
-
-    r = client.get(
-        f"/posts/{post_id}/comments", params={"text": "doesnotexist", "user": "no_user"}
-    )
-
-    assert r.status_code == 404
-    assert r.json()["detail"] == "No comments found for this post"

@@ -35,7 +35,7 @@ def clean_db_after_test():
     yield
     with Session(engine) as session:
         for table in reversed(SQLModel.metadata.sorted_tables):
-            session.execute(table.delete())
+            session.exec(table.delete())
         session.commit()
 
 

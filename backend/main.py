@@ -90,23 +90,6 @@ def create_post(post: PostCreate, session: Session = Depends(get_session_dep)):
 
     return PostRead.from_orm_bytes(new_post)
 
-    # =============================================
-    # Create post in DB
-    # =============================================
-    new_post = Post(
-        image=image_bytes,
-        text=post.text,
-        user=post.user
-    )
-
-    session.add(new_post)
-    session.commit()
-    session.refresh(new_post)
-
-    # Convert to Pydantic v2 model (base64 → string)
-    return PostRead.from_orm_bytes(new_post)
-
-
 # -----------------------------------------------------------
 # Get all posts
 # -----------------------------------------------------------

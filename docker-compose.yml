@@ -8,7 +8,18 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./sqlite:/app/sqlite
+      - ./sqlite:/app/sqlite   # persist SQLite data
     environment:
-      # nothing needed unless you add config
       PYTHONUNBUFFERED: "1"
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend
+
+volumes:
+  sqlite:

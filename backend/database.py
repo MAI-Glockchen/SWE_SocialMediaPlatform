@@ -1,17 +1,32 @@
+import os
 from contextlib import contextmanager
 from pathlib import Path
 
+from dotenv import load_dotenv
 from sqlmodel import Session, SQLModel, create_engine
 
+# Load .env file
+load_dotenv()
+
+# Base project root
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-DB_PATH = PROJECT_ROOT / "sqlite" / "social.db"
-DB_PATH.parent.mkdir(parents=True, exist_ok=True)
 
-DB_URL = f"sqlite:///{DB_PATH}"
-TEST_DB_URL = "sqlite:///:memory:"
+# Env vars
+ENV_DB_PATH = os.getenv("DB_PATH")
+ENV_DB_URL = os.getenv("DB_URL")
+ENV_TEST_DB_URL = os.getenv("TEST_DB_URL", "sqlite:///:memory:")
+ENV_DB_ECHO = os.getenv("DB_ECHO", "false").lower() == "true"
 
-engine = create_engine(DB_URL, echo=True)
-test_engine = create_engine(TEST_DB_URL, echo=True)
+# If DB_PATH is provided, ensure directories exist
+if ENV_DB_PATH:
+    db_file = Path(ENV_DB_PATH)
+    db_file.parent.mkdir(parents=True, exist_ok=True)
+
+# Database URLs
+DB_URL = ENV_DB_URL or f"sqlite:///{PROJECT_ROOT / 'sqlite' / 'social.db'}"
+
+engine = create_engine(DB_URL, echo=ENV_DB_ECHO)
+test_engine = create_engine(ENV_TEST_DB_URL, echo=False)
 
 
 # --------------------------

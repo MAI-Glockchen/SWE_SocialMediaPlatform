@@ -11,15 +11,8 @@ services:
       - ./sqlite:/app/sqlite   # persist SQLite data
     environment:
       PYTHONUNBUFFERED: "1"
-
-  frontend:
-    build:
-      context: .
-      dockerfile: frontend/Dockerfile
-    ports:
-      - "4200:80"
-    depends_on:
-      - backend
+    env_file:
+      - .env
 
 volumes:
   sqlite:

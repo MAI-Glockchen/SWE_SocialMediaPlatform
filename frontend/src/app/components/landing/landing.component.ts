@@ -53,6 +53,12 @@ export class LandingComponent {
     });
   }
 
+  deletePost(id: number) {
+    this.postsService.delete(id).subscribe(() => {
+      this.loadPosts();
+    });
+  }
+
   img(post: Post) {
     if (post.image) return `data:image/png;base64,${post.image}`;
     return 'default.png'; // default placeholder image

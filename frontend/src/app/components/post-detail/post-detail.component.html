@@ -17,37 +17,38 @@
 <h2 class="text-2xl font-bold mb-4">Comments</h2>
 
 @if (comments() && comments().length > 0) {
-
   <div class="flex flex-col gap-4 mb-6">
     @for (c of comments(); track c.comment_id) {
-      <div class="border rounded-lg p-3 shadow-sm bg-white">
+      <div class="border rounded-lg p-3 shadow-sm bg-white relative">
+
+        <!-- Delete button -->
+        <button
+          class="absolute top-2 right-2 text-red-600 hover:text-red-800"
+          (click)="deleteComment(c.comment_id)"
+          title="Delete comment"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="inline w-4 h-4" fill="none"
+               viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M19 7l-.867 12.142A2 2 0 016.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5
+                 4v6m4-6v6M9 7h6m-7 0a1 1 0 01-1-1V5a1 1 0 011-1h4a1 1 0 011 1v1m-7 0h10"/>
+          </svg>
+        </button>
+
         <strong class="block text-blue-700">{{ c.user }}</strong>
         <p class="text-gray-700">{{ c.text }}</p>
       </div>
     }
   </div>
-
 } @else {
-
   <p class="text-gray-500 italic mb-6">No comments yet.</p>
-
 }
 
 <h2 class="text-2xl font-bold mb-4 text-center">Add Comment</h2>
 
 <div class="flex flex-col gap-3 max-w-xl mx-auto w-full">
-  <input
-    class="border px-3 py-2 rounded"
-    placeholder="User"
-    [(ngModel)]="newUser"
-  >
-
-  <textarea
-    class="border px-3 py-2 rounded"
-    placeholder="Comment"
-    rows="3"
-    [(ngModel)]="newText"
-  ></textarea>
+  <input class="border px-3 py-2 rounded" placeholder="User" [(ngModel)]="newUser">
+  <textarea class="border px-3 py-2 rounded" placeholder="Comment" rows="3" [(ngModel)]="newText"></textarea>
 
   <button
     class="bg-blue-600 text-white py-2 rounded hover:bg-blue-700"

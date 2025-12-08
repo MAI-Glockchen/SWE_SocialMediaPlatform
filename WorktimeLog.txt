@@ -13,3 +13,9 @@ Exercise 3
 Andreas: Make use of GitHub actions: Automate container build.Push container to a registry. : 1,4 h
 Armin: Additional Angular Frontend & Angular Tests: 10,0h
 Armin: Dockerize Python Backend: 0,5h
+
+Exercise 4
+
+Andreas: Dockerize everything: --
+Armin: Dockerize everything (Also): 1,5 h
+Armin: Add "Delete" functionality posts and comments, add icons, refactor backend tests: 6,0 h

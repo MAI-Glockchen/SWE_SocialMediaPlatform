@@ -1,14 +1,26 @@
-version: "3.9"
-
 services:
   backend:
     build:
       context: .
       dockerfile: backend/Dockerfile
+    container_name: social-backend
     ports:
       - "8000:8000"
     volumes:
       - ./sqlite:/app/sqlite
     environment:
-      # nothing needed unless you add config
       PYTHONUNBUFFERED: "1"
+    env_file:
+      - .env
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        NGINX_CONF: nginx.conf
+    container_name: social-frontend
+    ports:
+      - "4200:80"   # Host:Container (nginx runs on 80 inside container)
+    depends_on:
+      - backend

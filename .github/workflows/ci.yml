@@ -1,4 +1,4 @@
-name: Python CI & Deploy Check
+name: WalLoh Social CI & Deploy Check
 
 on:
   push:
@@ -23,7 +23,7 @@ jobs:
         with:
           fetch-depth: 0  # required so origin/main exists
 
-      - name: Setup Python 3.12
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.14"
@@ -34,6 +34,13 @@ jobs:
       - name: Backend dependency install
         working-directory: .
         run: uv sync --frozen
+
+      # Set environment variables for testing
+      # Makes the backend use the in-memory DB instead of /app/sqlite
+      - name: Set test environment variables
+        run: |
+          echo "WALLOH_SOCIAL_TESTING=1" >> $GITHUB_ENV
+          echo "TEST_DB_URL=sqlite:///:memory:" >> $GITHUB_ENV
 
       - name: Run backend tests
         working-directory: .

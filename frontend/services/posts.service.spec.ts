@@ -11,7 +11,7 @@ describe('PostsService (pure Vitest)', () => {
     const http = { get: getMock } as unknown as HttpClient;
     const service = new PostsService(http);
 
-    service.getAll().subscribe(() => {});
+    service.getAll().subscribe(() => { });
 
     expect(getMock).toHaveBeenCalledWith(
       'http://localhost:8000/posts/'
@@ -30,7 +30,7 @@ describe('PostsService (pure Vitest)', () => {
       user: 'u',
       text: 'hello',
       image: null
-    }).subscribe(() => {});
+    }).subscribe(() => { });
 
     expect(postMock).toHaveBeenCalledWith(
       'http://localhost:8000/posts/',
@@ -41,4 +41,20 @@ describe('PostsService (pure Vitest)', () => {
       }
     );
   });
+
+  it('should delete a post', () => {
+    const deleteMock = vi.fn().mockReturnValue({
+      subscribe: (fn: any) => fn(null)
+    });
+
+    const http = { delete: deleteMock } as unknown as HttpClient;
+    const service = new PostsService(http);
+
+    service.delete(123).subscribe(() => { });
+
+    expect(deleteMock).toHaveBeenCalledWith(
+      'http://localhost:8000/posts/123'
+    );
+  });
+
 });

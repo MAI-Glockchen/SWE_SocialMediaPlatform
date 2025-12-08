@@ -18,7 +18,7 @@ export interface CommentCreate {
 export class CommentsService {
   private api = 'http://localhost:8000/posts';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getForPost(postId: number) {
     return this.http.get<Comment[]>(`${this.api}/${postId}/comments`);
@@ -27,4 +27,9 @@ export class CommentsService {
   create(postId: number, payload: CommentCreate) {
     return this.http.post<Comment>(`${this.api}/${postId}/comments`, payload);
   }
+  
+  delete(commentId: number) {
+    return this.http.delete<void>(`${this.api}/comments/${commentId}`);
+  }
+
 }

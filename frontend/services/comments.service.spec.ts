@@ -11,7 +11,7 @@ describe('CommentsService (pure Vitest)', () => {
     const http = { get: getMock } as unknown as HttpClient;
     const service = new CommentsService(http);
 
-    service.getForPost(1).subscribe(() => {});
+    service.getForPost(1).subscribe(() => { });
 
     expect(getMock).toHaveBeenCalledWith(
       'http://localhost:8000/posts/1/comments'
@@ -29,7 +29,7 @@ describe('CommentsService (pure Vitest)', () => {
     service.create(1, {
       user: 'a',
       text: 'b'
-    }).subscribe(() => {});
+    }).subscribe(() => { });
 
     expect(postMock).toHaveBeenCalledWith(
       'http://localhost:8000/posts/1/comments',
@@ -39,4 +39,21 @@ describe('CommentsService (pure Vitest)', () => {
       }
     );
   });
+  
+  it('should delete a comment', () => {
+    const deleteMock = vi.fn().mockReturnValue({
+      subscribe: (fn: any) => fn(null)
+    });
+
+    const http = { delete: deleteMock } as unknown as HttpClient;
+    const service = new CommentsService(http);
+
+    service.delete(55).subscribe(() => { });
+
+    expect(deleteMock).toHaveBeenCalledWith(
+      'http://localhost:8000/comments/55'
+    );
+  });
+
+
 });

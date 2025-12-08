@@ -1,11 +1,19 @@
-import { ApplicationConfig } from '@angular/core';
+import { ApplicationConfig, importProvidersFrom } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { provideHttpClient } from '@angular/common/http';
 import { routes } from './app.routes';
+import { NgIconsModule } from '@ng-icons/core';
+import {
+  heroTrash
+} from '@ng-icons/heroicons/outline';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
-    provideHttpClient()
-  ]
+
+    importProvidersFrom(
+      NgIconsModule.withIcons({
+        heroTrash
+      })
+    )
+  ],
 };

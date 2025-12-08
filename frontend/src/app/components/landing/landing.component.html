@@ -1,25 +1,11 @@
 <h2 class="text-2xl font-bold mb-4 text-center">Create Post</h2>
 
 <div class="flex flex-col gap-3 max-w-xl mx-auto">
-  <input
-    class="border px-3 py-2 rounded"
-    placeholder="User"
-    [(ngModel)]="user"
-  >
-
-  <textarea
-    class="border px-3 py-2 rounded"
-    placeholder="Text"
-    rows="4"
-    [(ngModel)]="text"
-  ></textarea>
-
+  <input class="border px-3 py-2 rounded" placeholder="User" [(ngModel)]="user">
+  <textarea class="border px-3 py-2 rounded" placeholder="Text" rows="4" [(ngModel)]="text"></textarea>
   <input type="file" (change)="onImage($event)">
 
-  <button
-    class="bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
-    (click)="submitPost()"
-  >
+  <button class="bg-blue-600 text-white py-2 rounded hover:bg-blue-700" (click)="submitPost()">
     Create
   </button>
 </div>
@@ -31,21 +17,23 @@
 <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 
   @for (post of posts(); track post.id) {
-    <div class="border rounded-lg p-4 shadow-sm hover:shadow-md transition bg-white">
-      <img
-        class="rounded mb-2 w-full object-cover"
-        [src]="img(post)"
-      >
-      <h3 class="text-lg font-semibold">{{ post.user }}</h3>
-      <p class="text-gray-700">{{ post.text }}</p>
+  <div class="border rounded-lg p-4 shadow-sm hover:shadow-md transition bg-white relative">
 
-      <a
-        class="text-blue-600 hover:underline font-medium"
-        [routerLink]="['/post', post.id]"
-      >
-        Open →
-      </a>
-    </div>
+    <!-- Delete button -->
+    <button class="absolute bottom-2 right-2 text-red-600 hover:text-red-800" title="Delete post"
+      (click)="deletePost(post.id)">
+      <ng-icon name="heroTrash" class="w-7 h-7 text-red-600"></ng-icon>
+    </button>
+
+    <img class="rounded mb-2 w-full object-cover" [src]="img(post)">
+    <h3 class="text-lg font-semibold">{{ post.user }}</h3>
+    <p class="text-gray-700">{{ post.text }}</p>
+
+    <a class="text-blue-600 hover:underline font-medium" [routerLink]="['/post', post.id]">
+      Open →
+    </a>
+
+  </div>
   }
 
 </div>

@@ -90,23 +90,6 @@ def create_post(post: PostCreate, session: Session = Depends(get_session_dep)):
 
     return PostRead.from_orm_bytes(new_post)
 
-    # =============================================
-    # Create post in DB
-    # =============================================
-    new_post = Post(
-        image=image_bytes,
-        text=post.text,
-        user=post.user
-    )
-
-    session.add(new_post)
-    session.commit()
-    session.refresh(new_post)
-
-    # Convert to Pydantic v2 model (base64 → string)
-    return PostRead.from_orm_bytes(new_post)
-
-
 # -----------------------------------------------------------
 # Get all posts
 # -----------------------------------------------------------
@@ -146,6 +129,24 @@ def get_post_by_id(post_id: int, session: Session = Depends(get_session_dep)):
 
     return PostRead.from_orm_bytes(post)
 
+# -----------------------------------------------------------
+# Delete Post (and its comments)
+# -----------------------------------------------------------
+@app.delete("/posts/{post_id}", status_code=204)
+def delete_post(post_id: int, session: Session = Depends(get_session_dep)):
+
+    post = session.exec(select(Post).where(Post.id == post_id)).first()
+    if not post:
+        raise HTTPException(404, "Post not found")
+
+    # delete all comments belonging to post
+    comments = session.exec(select(Comment).where(Comment.super_id == post_id)).all()
+    for c in comments:
+        session.delete(c)
+
+    session.delete(post)
+    session.commit()
+    return None
 
 # -----------------------------------------------------------
 # Get comments for a post
@@ -184,6 +185,22 @@ def get_comment_by_id(comment_id: int, session: Session = Depends(get_session_de
 
     return CommentRead.from_orm(comment)
 
+# -----------------------------------------------------------
+# Delete Comment by ID
+# -----------------------------------------------------------
+@app.delete("/comments/{comment_id}", status_code=204)
+def delete_comment_by_id(comment_id: int, session: Session = Depends(get_session_dep)):
+
+    comment = session.exec(
+        select(Comment).where(Comment.comment_id == comment_id)
+    ).first()
+
+    if not comment:
+        raise HTTPException(404, "Comment not found")
+
+    session.delete(comment)
+    session.commit()
+    return None
 
 # -----------------------------------------------------------
 # Create comment

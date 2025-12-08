@@ -5,11 +5,12 @@ import { PostsService } from '../../../../services/posts.service';
 import { CommentsService } from '../../../../services/comments.service';
 import { Post } from '../../../../services/posts.service';
 import { CommentCreate, Comment } from '../../../../services/comments.service';
+import { NgIconsModule } from '@ng-icons/core';
 
 @Component({
   selector: 'app-post-detail',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, NgIconsModule],
   templateUrl: './post-detail.component.html',
 })
 export class PostDetailComponent {
@@ -17,6 +18,7 @@ export class PostDetailComponent {
   post = signal<Post | null>(null);
   comments = signal<Comment[]>([]);
 
+  postId!: number;
   newUser = '';
   newText = '';
 
@@ -25,31 +27,37 @@ export class PostDetailComponent {
   private commentsService = inject(CommentsService);
 
   ngOnInit() {
-    const id = Number(this.route.snapshot.paramMap.get('id'));
-    this.loadPost(id);
-    this.loadComments(id);
+    this.postId = Number(this.route.snapshot.paramMap.get('id'));
+
+    this.loadPost(this.postId);
+    this.loadComments(this.postId);
   }
 
-  loadPost(id: number) {
-    this.postsService.getById(id).subscribe(p => this.post.set(p));
+  loadPost(postId: number) {
+    this.postsService.getById(postId).subscribe(p => this.post.set(p));
   }
 
-  loadComments(id: number) {
-    this.commentsService.getForPost(id).subscribe(c => this.comments.set(c));
+  loadComments(postId: number) {
+    this.commentsService.getForPost(postId).subscribe(c => this.comments.set(c));
   }
 
   submitComment() {
-    const id = Number(this.route.snapshot.paramMap.get('id'));
-
     const payload: CommentCreate = {
       user: this.newUser,
       text: this.newText,
     };
 
-    this.commentsService.create(id, payload).subscribe(() => {
+    this.commentsService.create(this.postId, payload).subscribe(() => {
       this.newUser = '';
       this.newText = '';
-      this.loadComments(id);  // refresh list
+      this.loadComments(this.postId);  // refresh
     });
   }
+
+  deleteComment(commentId: number) {
+    this.commentsService.delete(commentId).subscribe(() => {
+      this.loadComments(this.postId);
+    });
+  }
+
 }

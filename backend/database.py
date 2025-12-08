@@ -58,5 +58,5 @@ def get_test_session():
 # def reset_prod_db():
 #    with Session(engine) as session:
 #        for table in reversed(SQLModel.metadata.sorted_tables):
-#            session.execute(table.delete())
+#            session.exec(table.delete())
 #        session.commit()

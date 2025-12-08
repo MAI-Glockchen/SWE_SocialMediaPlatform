@@ -1,36 +1,29 @@
-# --------------------------
-# Stage 1: Build Angular
-# --------------------------
-FROM node:20-alpine AS build
+# ============================
+# 1. Build Stage
+# ============================
+FROM node:24-alpine AS build
 
 WORKDIR /app
 
-# Install Angular CLI globally
-RUN npm install -g @angular/cli
+COPY package.json package-lock.json ./
+RUN npm ci
 
-# Copy package files and install dependencies
-COPY frontend/package.json package-lock.json ./
-RUN npm install
+COPY . .
 
-# Copy frontend source
-COPY frontend/ ./
+RUN npm run build
 
-# Build Angular app (production)
-RUN ng build --configuration production
 
-# --------------------------
-# Stage 2: Serve with Nginx
-# --------------------------
-FROM nginx:alpine
+# ============================
+# 2. Runtime Stage
+# ============================
+FROM nginx:alpine AS runtime
 
-# Remove default Nginx files
-RUN rm -rf /usr/share/nginx/html/*
+RUN rm /etc/nginx/conf.d/default.conf
 
-# Copy Angular build output (adjust folder based on angular.json)
-COPY --from=build /app/dist/app /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Copy custom Nginx config to handle SPA routing
-COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf
+# Copy Angular build output
+COPY --from=build /app/dist/app/browser /usr/share/nginx/html
 
 EXPOSE 80
 

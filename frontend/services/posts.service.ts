@@ -19,7 +19,7 @@ export interface PostCreate {
 export class PostsService {
   private api = 'http://localhost:8000/posts';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getAll() {
     return this.http.get<Post[]>(`${this.api}/`);
@@ -32,4 +32,9 @@ export class PostsService {
   create(payload: PostCreate) {
     return this.http.post<Post>(`${this.api}/`, payload);
   }
+
+  delete(id: number) {
+    return this.http.delete<void>(`${this.api}/${id}`);
+  }
+
 }

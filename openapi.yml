@@ -165,6 +165,38 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
+  /posts/{post_id}:
+    delete:
+      summary: Delete a post and its comments
+      description: Deletes the specified post. All comments belonging to the post are also deleted.
+      parameters:
+        - name: post_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Post deleted successfully
+        '404':
+          description: Post not found
+
+  /comments/{comment_id}:
+    delete:
+      summary: Delete a comment
+      description: Deletes the specified comment by its ID.
+      parameters:
+        - name: comment_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Comment deleted successfully
+        '404':
+          description: Comment not found
+
 components:
   schemas:
 

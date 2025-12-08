@@ -2,11 +2,12 @@ import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { PostsService, PostCreate, Post } from '../../../../services/posts.service';
+import { NgIconsModule } from '@ng-icons/core';
 
 @Component({
   selector: 'app-landing',
   standalone: true,
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, NgIconsModule, RouterLink],
   templateUrl: './landing.component.html',
 })
 export class LandingComponent {
@@ -50,6 +51,12 @@ export class LandingComponent {
       this.text = '';
       this.imageBase64 = null;
       this.loadPosts(); // refresh
+    });
+  }
+
+  deletePost(id: number) {
+    this.postsService.delete(id).subscribe(() => {
+      this.loadPosts();
     });
   }
 

@@ -5,11 +5,12 @@ import { PostsService } from '../../../../services/posts.service';
 import { CommentsService } from '../../../../services/comments.service';
 import { Post } from '../../../../services/posts.service';
 import { CommentCreate, Comment } from '../../../../services/comments.service';
+import { NgIconsModule } from '@ng-icons/core';
 
 @Component({
   selector: 'app-post-detail',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, NgIconsModule],
   templateUrl: './post-detail.component.html',
 })
 export class PostDetailComponent {

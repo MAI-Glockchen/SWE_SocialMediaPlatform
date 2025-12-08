@@ -5,10 +5,7 @@
   <textarea class="border px-3 py-2 rounded" placeholder="Text" rows="4" [(ngModel)]="text"></textarea>
   <input type="file" (change)="onImage($event)">
 
-  <button
-    class="bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
-    (click)="submitPost()"
-  >
+  <button class="bg-blue-600 text-white py-2 rounded hover:bg-blue-700" (click)="submitPost()">
     Create
   </button>
 </div>
@@ -20,31 +17,23 @@
 <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 
   @for (post of posts(); track post.id) {
-    <div class="border rounded-lg p-4 shadow-sm hover:shadow-md transition bg-white relative">
+  <div class="border rounded-lg p-4 shadow-sm hover:shadow-md transition bg-white relative">
 
-      <!-- Delete button -->
-      <button
-        class="absolute bottom-2 right-2 text-red-600 hover:text-red-800"
-        title="Delete post"
-        (click)="deletePost(post.id)"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" class="inline w-7 h-7" fill="none"
-              viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5
-               4v6m4-6v6M9 7h6m-7 0a1 1 0 01-1-1V5a1 1 0 011-1h4a1 1 0 011 1v1m-7 0h10"/>
-        </svg>
-      </button>
+    <!-- Delete button -->
+    <button class="absolute bottom-2 right-2 text-red-600 hover:text-red-800" title="Delete post"
+      (click)="deletePost(post.id)">
+      <ng-icon name="heroTrash" class="w-7 h-7 text-red-600"></ng-icon>
+    </button>
 
-      <img class="rounded mb-2 w-full object-cover" [src]="img(post)">
-      <h3 class="text-lg font-semibold">{{ post.user }}</h3>
-      <p class="text-gray-700">{{ post.text }}</p>
+    <img class="rounded mb-2 w-full object-cover" [src]="img(post)">
+    <h3 class="text-lg font-semibold">{{ post.user }}</h3>
+    <p class="text-gray-700">{{ post.text }}</p>
 
-      <a class="text-blue-600 hover:underline font-medium" [routerLink]="['/post', post.id]">
-        Open →
-      </a>
+    <a class="text-blue-600 hover:underline font-medium" [routerLink]="['/post', post.id]">
+      Open →
+    </a>
 
-    </div>
+  </div>
   }
 
 </div>

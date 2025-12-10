@@ -16,6 +16,6 @@ Armin: Dockerize Python Backend: 0,5h
 
 Exercise 4
 
-Andreas: Dockerize everything: --
+Andreas: Dockerize everything (first half, until having problems with frontend container, then Armin took over): 1h
 Armin: Dockerize everything (Also): 1,5 h
 Armin: Add "Delete" functionality posts and comments, add icons, refactor backend tests: 6,0 h

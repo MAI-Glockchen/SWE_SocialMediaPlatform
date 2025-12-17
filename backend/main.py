@@ -14,11 +14,6 @@ from backend.schemas import CommentCreate, CommentRead, PostCreate, PostRead
 # -----------------------
 # Dependency for FastAPI
 # -----------------------
-def get_session_dep():
-    """FastAPI dependency that yields a SQLModel Session."""
-    with get_session() as session:
-        yield session
-
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -47,7 +42,7 @@ app.add_middleware(
 # Create Post
 # -----------------------------------------------------------
 @app.post("/posts/", response_model=PostRead)
-def create_post(post: PostCreate, session: Session = Depends(get_session_dep)):
+def create_post(post: PostCreate, session: Session = Depends(get_session)):
 
     raw = post.image
 
@@ -97,7 +92,7 @@ def create_post(post: PostCreate, session: Session = Depends(get_session_dep)):
 def get_all_posts(
     text: str | None = Query(None, description="Search term for text"),
     user: str | None = Query(None, description="Filter by author username"),
-    session: Session = Depends(get_session_dep),
+    session: Session = Depends(get_session),
 ):
     query = select(Post)
 
@@ -121,7 +116,7 @@ def get_all_posts(
 # Get Post by ID
 # -----------------------------------------------------------
 @app.get("/posts/{post_id}", response_model=PostRead)
-def get_post_by_id(post_id: int, session: Session = Depends(get_session_dep)):
+def get_post_by_id(post_id: int, session: Session = Depends(get_session)):
     post = session.exec(select(Post).where(Post.id == post_id)).first()
 
     if not post:
@@ -133,7 +128,7 @@ def get_post_by_id(post_id: int, session: Session = Depends(get_session_dep)):
 # Delete Post (and its comments)
 # -----------------------------------------------------------
 @app.delete("/posts/{post_id}", status_code=204)
-def delete_post(post_id: int, session: Session = Depends(get_session_dep)):
+def delete_post(post_id: int, session: Session = Depends(get_session)):
 
     post = session.exec(select(Post).where(Post.id == post_id)).first()
     if not post:
@@ -156,7 +151,7 @@ def get_comments_for_post_id(
     post_id: int,
     text: str | None = Query(None, description="Search term in comment text"),
     user: str | None = Query(None, description="Filter by comment user"),
-    session: Session = Depends(get_session_dep),
+    session: Session = Depends(get_session),
 ):
     query = select(Comment).where(Comment.super_id == post_id)
 
@@ -175,7 +170,7 @@ def get_comments_for_post_id(
 # Get comment by ID
 # -----------------------------------------------------------
 @app.get("/comments/{comment_id}", response_model=CommentRead)
-def get_comment_by_id(comment_id: int, session: Session = Depends(get_session_dep)):
+def get_comment_by_id(comment_id: int, session: Session = Depends(get_session)):
     comment = session.exec(
         select(Comment).where(Comment.comment_id == comment_id)
     ).first()
@@ -189,7 +184,7 @@ def get_comment_by_id(comment_id: int, session: Session = Depends(get_session_de
 # Delete Comment by ID
 # -----------------------------------------------------------
 @app.delete("/comments/{comment_id}", status_code=204)
-def delete_comment_by_id(comment_id: int, session: Session = Depends(get_session_dep)):
+def delete_comment_by_id(comment_id: int, session: Session = Depends(get_session)):
 
     comment = session.exec(
         select(Comment).where(Comment.comment_id == comment_id)
@@ -209,7 +204,7 @@ def delete_comment_by_id(comment_id: int, session: Session = Depends(get_session
 def create_comment_for_post(
     post_id: int,
     comment: CommentCreate,
-    session: Session = Depends(get_session_dep),
+    session: Session = Depends(get_session),
 ):
     new_comment = Comment(super_id=post_id, **comment.model_dump())
 

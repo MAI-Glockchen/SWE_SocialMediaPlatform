@@ -3,7 +3,7 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlmodel import Session, SQLModel, create_engine
 
-from backend.main import app, get_session_dep
+from backend.main import app, get_session
 
 TEST_DB_URL = "sqlite:///./test.db"
 engine = create_engine(TEST_DB_URL, connect_args={"check_same_thread": False})
@@ -17,7 +17,7 @@ def get_test_session():
     with Session(engine) as session:
         yield session
 
-app.dependency_overrides[get_session_dep] = get_test_session
+app.dependency_overrides[get_session] = get_test_session
 client = TestClient(app)
 
 # --------------------------

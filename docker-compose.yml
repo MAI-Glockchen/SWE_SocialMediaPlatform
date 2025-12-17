@@ -30,3 +30,11 @@ services:
   ports:
     - "5672:5672"
     - "15672:15672"
+
+  image-resizer:
+    build: ./image-resizer
+    depends_on:
+      - rabbitmq
+      - backend
+    volumes:
+      - ./sqlite:/app/sqlite

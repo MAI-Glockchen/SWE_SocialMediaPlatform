@@ -5,7 +5,8 @@ export interface Post {
   id: number;
   user: string;
   text: string;
-  image: string | null;
+  image_full: string | null;
+  image_thumb: string | null;
   created_at: string; // backend returns a string timestamp
 }
 

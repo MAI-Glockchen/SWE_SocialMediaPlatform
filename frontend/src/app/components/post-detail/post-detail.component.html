@@ -6,11 +6,8 @@
 
     <!-- image -->
     <div class="border rounded-lg p-2 bg-white shadow-sm mb-3">
-      <img
-        class="w-full h-auto rounded object-contain"
-        [src]="post()?.image ? ('data:image/png;base64,' + post()!.image) : '/default.png'"
-        alt="Post image"
-      >
+      <img class="w-full h-auto rounded object-contain" [src]="img()" alt="Post image" />
+
     </div>
 
     <!-- text -->
@@ -33,9 +30,7 @@
     <div class="border rounded-lg p-3 shadow-sm bg-white relative">
 
       <!-- Delete button -->
-      <button
-        class="absolute bottom-2 right-2 text-red-600 hover:text-red-800"
-        (click)="deleteComment(c.comment_id)"
+      <button class="absolute bottom-2 right-2 text-red-600 hover:text-red-800" (click)="deleteComment(c.comment_id)"
         title="Delete comment">
         <ng-icon name="heroTrash" class="w-7 h-7 text-red-600"></ng-icon>
       </button>

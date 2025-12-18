@@ -60,8 +60,11 @@ export class LandingComponent {
     });
   }
 
-  img(post: Post) {
-    if (post.image) return `data:image/png;base64,${post.image}`;
-    return 'default.png'; // default placeholder image
+  img(post: Post): string {
+    if (post.image_thumb) {
+      return 'data:image/png;base64,' + post.image_thumb;
+    }
+    return 'default.png';
   }
+
 }

@@ -19,3 +19,8 @@ Exercise 4
 Andreas: Dockerize everything (first half, until having problems with frontend container, then Armin took over): 1h
 Armin: Dockerize everything (Also): 1,5 h
 Armin: Add "Delete" functionality posts and comments, add icons, refactor backend tests: 6,0 h
+
+Exercise 5
+
+Andreas: Github Actions: 3,0 h
+Armin: Microservice "Image Resizer" with RabbitMQ: 7,0 h

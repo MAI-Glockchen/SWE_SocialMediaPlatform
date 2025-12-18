@@ -28,7 +28,8 @@ describe('PostDetailComponent (pure Vitest)', () => {
       id: 1,
       text: 'hello',
       user: 'u',
-      image: null,
+      image_thumb: null,
+      image_full: null,
       created_at: '2024-01-01T00:00:00Z',
     };
 
@@ -38,7 +39,7 @@ describe('PostDetailComponent (pure Vitest)', () => {
 
     const comp = new FakePostDetailComponent();
     comp.postsService = { getById: getByIdMock };
-    comp.commentsService = { getForPost: () => ({ subscribe() {} }) };
+    comp.commentsService = { getForPost: () => ({ subscribe() { } }) };
 
     comp.loadPost(1);
 
@@ -62,7 +63,7 @@ describe('PostDetailComponent (pure Vitest)', () => {
     });
 
     const comp = new FakePostDetailComponent();
-    comp.postsService = { getById: () => ({ subscribe() {} }) };
+    comp.postsService = { getById: () => ({ subscribe() { } }) };
     comp.commentsService = { getForPost: getForPostMock };
 
     comp.loadComments(1);

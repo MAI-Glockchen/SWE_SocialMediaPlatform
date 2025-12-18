@@ -1,7 +1,9 @@
 import io
 import json
-
+import time
 import pika
+
+from pika.exceptions import AMQPError
 from PIL import Image
 from sqlmodel import Session, create_engine, select
 
@@ -19,9 +21,7 @@ def process_message(ch, method, properties, body):
     post_id: int = payload["post_id"]
 
     with Session(engine) as session:
-        post = session.exec(
-            select(Post).where(Post.id == post_id)
-        ).first()
+        post = session.exec(select(Post).where(Post.id == post_id)).first()
 
         if post is None or post.image_full is None:
             return
@@ -37,10 +37,8 @@ def process_message(ch, method, properties, body):
         session.commit()
 
 
-def main():
-    connection = pika.BlockingConnection(
-        pika.ConnectionParameters(host=RABBIT_HOST)
-    )
+def consume():
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host=RABBIT_HOST))
     channel = connection.channel()
 
     channel.queue_declare(queue=QUEUE, durable=True)
@@ -52,6 +50,22 @@ def main():
 
     print("[image-resizer] waiting for resize jobs")
     channel.start_consuming()
+
+
+def main():
+    original_delay = 0.5
+    retry_delay = original_delay
+    while True:
+        try:
+            consume()
+            retry_delay = original_delay
+        except AMQPError as e:
+            print(f"[image-resizer] connection lost: {e}, retrying in {retry_delay} seconds.")
+            time.sleep(retry_delay)
+            retry_delay = retry_delay * 2 - original_delay / 2
+            if retry_delay > 60:
+                print("[image-resizer] giving up on connection retry. Abort service.")
+                break
 
 
 if __name__ == "__main__":

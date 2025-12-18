@@ -27,14 +27,24 @@ services:
 
   rabbitmq:
     image: rabbitmq:management
+    container_name: social-rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 1.5s
+      timeout: 2s
+      retries: 10
     ports:
       - "5672:5672"
       - "15672:15672"
 
   image-resizer:
     build: ./image-resizer
+    container_name: social-image-resizer
     depends_on:
-      - rabbitmq
-      - backend
+      rabbitmq:
+        condition: service_healthy
+      backend:
+        condition: service_started
     volumes:
       - ./sqlite:/app/sqlite
+

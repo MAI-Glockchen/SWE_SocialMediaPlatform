@@ -12,6 +12,8 @@ services:
       PYTHONUNBUFFERED: "1"
     env_file:
       - .env
+    networks:
+      - social-net
 
   frontend:
     build:
@@ -21,9 +23,11 @@ services:
         NGINX_CONF: nginx.conf
     container_name: social-frontend
     ports:
-      - "4200:80"   # Host:Container (nginx runs on 80 inside container)
+      - "4200:80"
     depends_on:
       - backend
+    networks:
+      - social-net
 
   rabbitmq:
     image: rabbitmq:management
@@ -36,6 +40,8 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
+    networks:
+      - social-net
 
   image-resizer:
     build: ./image-resizer
@@ -47,4 +53,10 @@ services:
         condition: service_started
     volumes:
       - ./sqlite:/app/sqlite
+    networks:
+      - social-net
 
+networks:
+  social-net:
+    name: network-social
+    driver: bridge

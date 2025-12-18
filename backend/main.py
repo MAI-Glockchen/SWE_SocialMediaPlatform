@@ -1,5 +1,6 @@
 import base64
 import json
+import os
 import re
 from contextlib import asynccontextmanager
 
@@ -12,6 +13,7 @@ from backend.database import get_session, init_db
 from backend.models import Comment, Post
 from backend.schemas import CommentCreate, CommentRead, PostCreate, PostRead
 
+TESTING = os.environ.get("WALLOH_SOCIAL_TESTING") == "1"
 
 # -------------------------------------------------
 # RabbitMQ helper
@@ -100,7 +102,7 @@ def create_post(
     session.commit()
     session.refresh(new_post)
 
-    if new_post.image_full is not None and new_post.id is not None:
+    if not TESTING and new_post.image_full is not None and new_post.id is not None:
         publish_resize_job(new_post.id)
 
     return PostRead.from_orm_bytes(new_post)
@@ -182,10 +184,18 @@ def delete_post(
 @app.get("/posts/{post_id}/comments", response_model=list[CommentRead])
 def get_comments_for_post(
     post_id: int,
+    text: str | None = Query(None, description="Search term in comment text"),
+    user: str | None = Query(None, description="Filter by comment user"),
     session: Session = Depends(get_session),
 ):
-    comments = session.exec(select(Comment).where(Comment.super_id == post_id)).all()
+    query = select(Comment).where(Comment.super_id == post_id)
 
+    if text:
+        query = query.where(Comment.text.ilike(f"%{text}%"))  # type: ignore[attr-defined]
+    if user:
+        query = query.where(Comment.user == user)
+
+    comments = session.exec(query).all()
     return [CommentRead.from_orm(c) for c in comments]
 
 
@@ -219,3 +229,18 @@ def delete_comment(
     session.delete(comment)
     session.commit()
     return None
+
+
+@app.get("/comments/{comment_id}", response_model=CommentRead)
+def get_comment_by_id(
+    comment_id: int,
+    session: Session = Depends(get_session),
+):
+    comment = session.exec(
+        select(Comment).where(Comment.comment_id == comment_id)
+    ).first()
+
+    if not comment:
+        raise HTTPException(404, "Comment not found")
+
+    return CommentRead.from_orm(comment)

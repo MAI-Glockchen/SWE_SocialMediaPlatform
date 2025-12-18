@@ -114,7 +114,7 @@ paths:
 
     post:
       summary: Create a comment for a post
-      operationId: create_comment_for_post
+      operationId: create_comment
       parameters:
         - name: post_id
           in: path

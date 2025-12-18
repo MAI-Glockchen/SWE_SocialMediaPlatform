@@ -26,10 +26,10 @@ services:
       - backend
 
   rabbitmq:
-  image: rabbitmq:management
-  ports:
-    - "5672:5672"
-    - "15672:15672"
+    image: rabbitmq:management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
 
   image-resizer:
     build: ./image-resizer

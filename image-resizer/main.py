@@ -5,7 +5,7 @@ import pika
 from PIL import Image
 from sqlmodel import Session, create_engine, select
 
-from backend.models import Post
+from models import Post
 
 RABBIT_HOST = "rabbitmq"
 QUEUE = "image.resize"

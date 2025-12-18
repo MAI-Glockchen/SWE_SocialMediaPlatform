@@ -24,3 +24,17 @@ services:
       - "4200:80"   # Host:Container (nginx runs on 80 inside container)
     depends_on:
       - backend
+
+  rabbitmq:
+    image: rabbitmq:management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  image-resizer:
+    build: ./image-resizer
+    depends_on:
+      - rabbitmq
+      - backend
+    volumes:
+      - ./sqlite:/app/sqlite

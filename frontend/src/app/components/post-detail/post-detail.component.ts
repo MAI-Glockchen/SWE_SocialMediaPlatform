@@ -60,4 +60,17 @@ export class PostDetailComponent {
     });
   }
 
+  img(): string {
+    const p = this.post();
+    if (!p) {
+      return '/default.png';
+    }
+
+    if (p.image_full) {
+      return 'data:image/png;base64,' + p.image_full;
+    }
+
+    return 'default.png';
+  }
+
 }

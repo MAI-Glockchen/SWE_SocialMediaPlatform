@@ -1,43 +1,58 @@
 <h2 class="text-2xl font-bold mb-4">Post</h2>
 
 @if (post()) {
-<div class="border rounded-lg p-4 shadow-sm mb-6 bg-white">
-  <div class="bg-white rounded mb-3 flex justify-center">
-    <img class="rounded" [src]="post()?.image ? ('data:image/png;base64,' + post()!.image) : '/default.png'"
-      height="150">
+<div class="mb-6 flex justify-center">
+  <div class="w-full max-w-3xl">
+
+    <!-- image -->
+    <div class="border rounded-lg p-2 bg-white shadow-sm mb-3">
+      <img class="w-full h-auto rounded object-contain" [src]="img()" alt="Post image" />
+
+    </div>
+
+    <!-- text -->
+    <div class="border rounded-lg p-4 bg-white shadow-sm">
+      <h3 class="text-lg font-semibold">{{ post()!.user }}</h3>
+      <p class="text-gray-700">{{ post()!.text }}</p>
+    </div>
+
   </div>
-  <h3 class="text-lg font-semibold">{{ post()!.user }}</h3>
-  <p class="text-gray-700">{{ post()!.text }}</p>
 </div>
 }
 
 <h2 class="text-2xl font-bold mb-4">Comments</h2>
 
 @if (comments() && comments().length > 0) {
-<div class="flex flex-col gap-4 mb-6">
-  @for (c of comments(); track c.comment_id) {
-  <div class="border rounded-lg p-3 shadow-sm bg-white relative">
+<div class="mb-6 flex justify-center">
+  <div class="w-full max-w-3xl flex flex-col gap-4">
 
-    <!-- Delete button -->
-    <button class="absolute bottom-2 right-2 text-red-600 hover:text-red-800" (click)="deleteComment(c.comment_id)"
-      title="Delete comment">
-      <ng-icon name="heroTrash" class="w-7 h-7 text-red-600"></ng-icon>
-    </button>
+    @for (c of comments(); track c.comment_id) {
+    <div class="border rounded-lg p-3 shadow-sm bg-white relative">
 
-    <strong class="block text-blue-700">{{ c.user }}</strong>
-    <p class="text-gray-700">{{ c.text }}</p>
+      <!-- Delete button -->
+      <button class="absolute bottom-2 right-2 text-red-600 hover:text-red-800" (click)="deleteComment(c.comment_id)"
+        title="Delete comment">
+        <ng-icon name="heroTrash" class="w-7 h-7 text-red-600"></ng-icon>
+      </button>
+
+      <strong class="block text-blue-700">{{ c.user }}</strong>
+      <p class="text-gray-700">{{ c.text }}</p>
+    </div>
+    }
+
   </div>
-  }
 </div>
 } @else {
-<p class="text-gray-500 italic mb-6">No comments yet.</p>
+<p class="text-gray-500 italic mb-6 text-center">
+  No comments yet.
+</p>
 }
 
 <h2 class="text-2xl font-bold mb-4 text-center">Add Comment</h2>
 
 <div class="flex flex-col gap-3 max-w-xl mx-auto w-full">
   <input class="border px-3 py-2 rounded" placeholder="User" [(ngModel)]="newUser">
-  <textarea class="border px-3 py-2 rounded" placeholder="Comment" rows="3" [(ngModel)]="newText"></textarea>
+  <textarea class="border px-3 py-2 rounded" placeholder="Comment" rows="5" [(ngModel)]="newText"></textarea>
 
   <button class="bg-blue-600 text-white py-2 rounded hover:bg-blue-700" (click)="submitComment()">
     Send

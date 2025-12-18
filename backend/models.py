@@ -6,11 +6,13 @@ from sqlmodel import Field, SQLModel
 
 class Post(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
-    image: Optional[bytes] = None  # store image as blob
+    image_full: Optional[bytes] | None = None
+    image_thumb: Optional[bytes] | None = None
     text: str
     user: str
     created_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc), nullable=False
+        default_factory=lambda: datetime.now(timezone.utc),
+        nullable=False
     )
 
 

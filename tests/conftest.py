@@ -1,14 +1,16 @@
+import os
+os.environ["WALLOH_SOCIAL_TESTING"] = "1"
+
 import base64
 import pytest
 from fastapi.testclient import TestClient
 from sqlmodel import Session, SQLModel, create_engine
 
-from backend.main import app, get_session_dep
+from backend.main import app, get_session
+
 
 TEST_DB_URL = "sqlite:///./test.db"
 engine = create_engine(TEST_DB_URL, connect_args={"check_same_thread": False})
-
-SQLModel.metadata.create_all(engine)
 
 # --------------------------
 # Dependency override
@@ -17,7 +19,7 @@ def get_test_session():
     with Session(engine) as session:
         yield session
 
-app.dependency_overrides[get_session_dep] = get_test_session
+app.dependency_overrides[get_session] = get_test_session
 client = TestClient(app)
 
 # --------------------------
@@ -25,6 +27,7 @@ client = TestClient(app)
 # --------------------------
 @pytest.fixture(scope="session", autouse=True)
 def setup_db():
+    SQLModel.metadata.drop_all(engine)
     SQLModel.metadata.create_all(engine)
 
 @pytest.fixture(autouse=True)

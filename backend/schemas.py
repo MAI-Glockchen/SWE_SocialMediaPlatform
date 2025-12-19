@@ -11,6 +11,13 @@ class PostCreate(BaseModel):
     user: str
 
 
+class GeneratedPostCreate(BaseModel):
+    image: Optional[str] = None  # base64 or data URL
+    prompt: str
+    persona: Optional[str] = "neutral"
+    user: str
+
+
 class PostRead(BaseModel):
     id: int
     image_thumb: Optional[str] = None  # base64 string for frontend

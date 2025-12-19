@@ -1,40 +1,91 @@
 <h2 class="text-2xl font-bold mb-4 text-center">Create Post</h2>
 
-<div class="flex flex-col gap-3 max-w-xl mx-auto">
-  <input class="border px-3 py-2 rounded" placeholder="User" [(ngModel)]="user">
-  <textarea class="border px-3 py-2 rounded" placeholder="Text" rows="5" [(ngModel)]="text"></textarea>
-  <input type="file" (change)="onImage($event)">
+<!-- Wrapper: two columns on large screens, stacked on small -->
+<div class="max-w-4xl mx-auto mb-6">
+  <div class="flex flex-col lg:flex-row gap-6">
 
-  <button class="bg-blue-600 text-white py-2 rounded hover:bg-blue-700" (click)="submitPost()">
-    Create
-  </button>
+    <!-- LEFT: Manual Post -->
+    <div class="flex-1 border rounded-lg p-4 bg-white shadow-sm">
+      <h3 class="text-lg font-semibold mb-3 text-center">MANUALLY CREATE POST</h3>
+
+      <input
+        class="border w-full px-3 py-2 rounded mb-3"
+        placeholder="User"
+        [(ngModel)]="user"
+      />
+      <textarea
+        class="border w-full px-3 py-2 rounded mb-3"
+        placeholder="Text"
+        rows="5"
+        [(ngModel)]="text"
+      ></textarea>
+      <input type="file" (change)="onImage($event)" class="mb-4" />
+
+      <button
+        class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+        (click)="submitPost()"
+      >
+        Create
+      </button>
+    </div>
+
+    <!-- Divider for visual separation -->
+    <div class="hidden lg:block w-px bg-gray-300"></div>
+
+    <!-- RIGHT: AI Post -->
+    <div class="flex-1 border rounded-lg p-4 bg-white shadow-sm">
+      <h3 class="text-lg font-semibold mb-3 text-center">GENERATE POST WITH AI</h3>
+
+      <label class="font-medium mb-1 block">Persona</label>
+      <select
+        class="border px-3 py-2 rounded w-full mb-4"
+        [(ngModel)]="persona"
+      >
+        <option value="neutral">neutral</option>
+        <option value="positive">positive</option>
+        <option value="negative">negative</option>
+      </select>
+
+      <button
+        class="w-full bg-purple-600 text-white py-2 rounded hover:bg-purple-700"
+        (click)="createAiPost()"
+      >
+        Generate Random Post with AI
+      </button>
+    </div>
+
+  </div>
 </div>
 
-<hr class="my-6">
+<hr class="my-6" />
 
 <h2 class="text-2xl font-bold mb-4">Posts</h2>
 
-<div class="grid gap-4
-            [grid-template-columns:repeat(auto-fit,minmax(260px,1fr))]">
-
+<div class="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(260px,1fr))]">
   @for (post of posts(); track post.id) {
-  <div class="border rounded-lg p-4 shadow-sm hover:shadow-md transition bg-white relative">
+    <div
+      class="border rounded-lg p-4 shadow-sm hover:shadow-md transition bg-white relative"
+    >
+      <!-- Delete button -->
+      <button
+        class="absolute bottom-2 right-2 text-red-600 hover:text-red-800"
+        title="Delete post"
+        (click)="deletePost(post.id)"
+      >
+        <ng-icon name="heroTrash" class="w-7 h-7 text-red-600"></ng-icon>
+      </button>
 
-    <!-- Delete button -->
-    <button class="absolute bottom-2 right-2 text-red-600 hover:text-red-800" title="Delete post"
-      (click)="deletePost(post.id)">
-      <ng-icon name="heroTrash" class="w-7 h-7 text-red-600"></ng-icon>
-    </button>
+      <img class="rounded mb-2 w-full object-cover" [src]="img(post)" />
 
-    <img class="rounded mb-2 w-full object-cover" [src]="img(post)">
-    <h3 class="text-lg font-semibold">{{ post.user }}</h3>
-    <p class="text-gray-700">{{ post.text }}</p>
+      <h3 class="text-lg font-semibold">{{ post.user }}</h3>
+      <p class="text-gray-700">{{ post.text }}</p>
 
-    <a class="text-blue-600 hover:underline font-medium" [routerLink]="['/post', post.id]">
-      Open →
-    </a>
-
-  </div>
+      <a
+        class="text-blue-600 hover:underline font-medium"
+        [routerLink]="['/post', post.id]"
+      >
+        Open →
+      </a>
+    </div>
   }
-
 </div>

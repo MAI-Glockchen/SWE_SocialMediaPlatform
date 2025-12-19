@@ -18,6 +18,7 @@ export class LandingComponent {
   user = '';
   text = '';
   imageBase64: string | null = null;
+  persona = 'neutral';
 
   constructor(private postsService: PostsService) { }
 
@@ -51,6 +52,28 @@ export class LandingComponent {
       this.text = '';
       this.imageBase64 = null;
       this.loadPosts(); // refresh
+    });
+  }
+
+  // Neuer Handler für den 'Create AI' Button
+  createAiPost() {
+    // Verwende das aktuell eingegebene 'text' Feld als Prompt
+    const prompt = this.text || 'Create a short social media post';
+    const payload = {
+      user: this.user || 'AI User',
+      prompt: prompt,
+      persona: this.persona || 'neutral',
+      image: this.imageBase64,
+    };
+
+    this.postsService.createWithAI(payload).subscribe({
+      next: () => {
+        this.user = '';
+        this.text = '';
+        this.imageBase64 = null;
+        this.loadPosts();
+      },
+      error: (err) => console.error('AI post failed', err),
     });
   }
 

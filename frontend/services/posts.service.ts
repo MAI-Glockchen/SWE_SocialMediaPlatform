@@ -34,6 +34,11 @@ export class PostsService {
     return this.http.post<Post>(`${this.api}/`, payload);
   }
 
+  // Neuer Endpunkt: Erzeuge einen Post mit AI (Backend: POST /posts/generate)
+  createWithAI(payload: { user: string; prompt: string; persona?: string; image?: string | null }) {
+    return this.http.post<Post>(`${this.api}/generate`, payload);
+  }
+
   delete(id: number) {
     return this.http.delete<void>(`${this.api}/${id}`);
   }

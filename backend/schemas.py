@@ -40,6 +40,11 @@ class PostRead(BaseModel):
         )
 
 
+class GeneratedCommentCreate(BaseModel):
+    user: str
+    persona: Optional[str] = "neutral"
+
+
 class CommentCreate(BaseModel):
     text: str
     user: str

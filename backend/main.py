@@ -14,6 +14,7 @@ from backend.models import Comment, Post
 from backend.schemas import (
     CommentCreate,
     CommentRead,
+    GeneratedCommentCreate,
     GeneratedPostCreate,
     PostCreate,
     PostRead,
@@ -115,6 +116,34 @@ def create_post_with_ai(post: GeneratedPostCreate, session: Session = Depends(ge
     new_post_data = PostCreate(text=generated_text, user=post.user, image=post.image)
     new_post = create_post(new_post_data, session=session)
     return new_post
+
+
+@app.post("/posts/{post_id}/comments/generate", response_model=CommentRead)
+def create_comment_with_ai(
+    post_id: int,
+    comment: GeneratedCommentCreate,
+    session: Session = Depends(get_session),
+):
+    post = session.exec(select(Post).where(Post.id == post_id)).first()
+    if not post:
+        raise HTTPException(404, "Post not found")
+
+    generated_text = ai_generator.generate_text(
+        additional_prompt=post.text,
+        persona=comment.persona,
+    )
+
+    new_comment = Comment(
+        super_id=post_id,
+        text=generated_text,
+        user=comment.user,
+    )
+
+    session.add(new_comment)
+    session.commit()
+    session.refresh(new_comment)
+
+    return CommentRead.from_orm(new_comment)
 
 
 # -------------------------------------------------

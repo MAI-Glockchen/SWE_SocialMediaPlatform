@@ -10,10 +10,7 @@ class Post(SQLModel, table=True):
     image_thumb: Optional[bytes] | None = None
     text: str
     user: str
-    created_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc),
-        nullable=False
-    )
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), nullable=False)
 
 
 class Comment(SQLModel, table=True):
@@ -21,7 +18,4 @@ class Comment(SQLModel, table=True):
     comment_id: int | None = Field(default=None, primary_key=True)
     text: str
     user: str
-    created_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc),
-        nullable=False
-    )
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), nullable=False)

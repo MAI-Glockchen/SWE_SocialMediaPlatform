@@ -35,12 +35,8 @@ class PostRead(BaseModel):
             text=obj.text,
             user=obj.user,
             created_at=obj.created_at,
-            image_full=(
-                base64.b64encode(obj.image_full).decode() if obj.image_full else None
-            ),
-            image_thumb=(
-                base64.b64encode(obj.image_thumb).decode() if obj.image_thumb else None
-            ),
+            image_full=(base64.b64encode(obj.image_full).decode() if obj.image_full else None),
+            image_thumb=(base64.b64encode(obj.image_thumb).decode() if obj.image_thumb else None),
         )
 
 

@@ -1,5 +1,6 @@
 from tests.conftest import client, create_post
 
+
 def test_create_comment():
     post_id = create_post()
 

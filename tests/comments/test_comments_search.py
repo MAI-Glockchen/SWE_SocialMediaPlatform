@@ -1,5 +1,6 @@
 from tests.conftest import client, create_post
 
+
 def test_search_comments_by_text():
     post_id = create_post()
     client.post(f"/posts/{post_id}/comments", json={"text": "FindMe123", "user": "bob"})
@@ -9,6 +10,7 @@ def test_search_comments_by_text():
     assert r.status_code == 200
     assert len(r.json()) == 1
 
+
 def test_search_comments_by_user():
     post_id = create_post()
     client.post(f"/posts/{post_id}/comments", json={"text": "A", "user": "u1"})
@@ -17,6 +19,7 @@ def test_search_comments_by_user():
 
     r = client.get(f"/posts/{post_id}/comments", params={"user": "u1"})
     assert len(r.json()) == 2
+
 
 def test_search_comments_by_text_and_user():
     post_id = create_post()

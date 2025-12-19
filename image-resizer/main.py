@@ -1,13 +1,12 @@
 import io
 import json
 import time
-import pika
 
+import pika
+from models import Post
 from pika.exceptions import AMQPError
 from PIL import Image
 from sqlmodel import Session, create_engine, select
-
-from models import Post
 
 RABBIT_HOST = "rabbitmq"
 QUEUE = "image.resize"

@@ -1,0 +1,2 @@
+# Normalize line endings for all Python files
+*.py text eol=lf

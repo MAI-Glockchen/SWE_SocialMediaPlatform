@@ -10,9 +10,7 @@ def main():
 
     for persona in PERSONAS.keys():
         print(f"[{persona.upper()}]")
-        text = text_generator.generate_text(
-            additional_prompt=additional_prompt, persona=persona
-        )
+        text = text_generator.generate_text(additional_prompt=additional_prompt, persona=persona)
         print(text)
         print("-" * 60)
 

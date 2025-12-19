@@ -1,4 +1,5 @@
-from tests.conftest import client, create_post, create_comment
+from tests.conftest import client, create_comment, create_post
+
 
 def test_get_comments_for_post():
     post_id = create_post()
@@ -8,6 +9,7 @@ def test_get_comments_for_post():
     r = client.get(f"/posts/{post_id}/comments")
     assert r.status_code == 200
     assert len(r.json()) >= 2
+
 
 def test_get_comment_by_id():
     post_id = create_post()

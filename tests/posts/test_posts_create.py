@@ -1,5 +1,6 @@
 from tests.conftest import client, encode_image
 
+
 def test_create_post():
     payload = {
         "image": encode_image("hello.png"),

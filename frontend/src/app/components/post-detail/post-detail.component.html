@@ -50,11 +50,66 @@
 
 <h2 class="text-2xl font-bold mb-4 text-center">Add Comment</h2>
 
-<div class="flex flex-col gap-3 max-w-xl mx-auto w-full">
-  <input class="border px-3 py-2 rounded" placeholder="User" [(ngModel)]="newUser">
-  <textarea class="border px-3 py-2 rounded" placeholder="Comment" rows="5" [(ngModel)]="newText"></textarea>
+<!-- Wrapper: two columns on large screens, stacked on small -->
+<div class="max-w-4xl mx-auto mb-6">
+  <div class="flex flex-col lg:flex-row gap-6">
 
-  <button class="bg-blue-600 text-white py-2 rounded hover:bg-blue-700" (click)="submitComment()">
-    Send
-  </button>
+    <!-- LEFT: Manual Comment -->
+    <div class="flex-1 border rounded-lg p-4 bg-white shadow-sm">
+      <h3 class="text-lg font-semibold mb-3 text-center">MANUALLY CREATE COMMENT</h3>
+
+      <label for="comment-user" class="sr-only">User</label>
+      <input
+        id="comment-user"
+        class="border w-full px-3 py-2 rounded mb-3"
+        placeholder="User"
+        [(ngModel)]="newUser"
+      />
+
+      <label for="comment-text" class="sr-only">Comment</label>
+      <textarea
+        id="comment-text"
+        class="border w-full px-3 py-2 rounded mb-3"
+        placeholder="Comment"
+        rows="5"
+        [(ngModel)]="newText"
+      ></textarea>
+
+      <button
+        class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+        (click)="submitComment()"
+      >
+        Send
+      </button>
+    </div>
+
+    <!-- Divider for visual separation on large screens -->
+    <div class="hidden lg:block w-px bg-gray-300"></div>
+
+    <!-- RIGHT: AI Comment -->
+    <div class="flex-1 border rounded-lg p-4 bg-white shadow-sm">
+      <h3 class="text-lg font-semibold mb-3 text-center">GENERATE COMMENT WITH AI</h3>
+
+      <label class="font-medium mb-1 block" for="comment-persona">Persona</label>
+      <select
+        id="comment-persona"
+        class="border px-3 py-2 rounded w-full mb-4"
+        [(ngModel)]="commentPersona"
+      >
+        <option value="neutral">neutral</option>
+        <option value="positive">positive</option>
+        <option value="negative">negative</option>
+      </select>
+
+      <button
+        class="w-full bg-purple-600 text-white py-2 rounded hover:bg-purple-700"
+        (click)="submitCommentWithAI()"
+      >
+        AI Reply
+      </button>
+    </div>
+
+  </div>
 </div>
+
+<hr class="my-6" />

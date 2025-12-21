@@ -21,6 +21,7 @@ export class PostDetailComponent {
   postId!: number;
   newUser = '';
   newText = '';
+  commentPersona = 'neutral'; // falls das Template später darauf zugreift
 
   private route = inject(ActivatedRoute);
   private postsService = inject(PostsService);
@@ -51,6 +52,24 @@ export class PostDetailComponent {
       this.newUser = '';
       this.newText = '';
       this.loadComments(this.postId);  // refresh
+    });
+  }
+
+  // Neue Methode: Erzeuge einen Kommentar per AI über das CommentsService
+  submitCommentWithAI() {
+    const payload = {
+      user: this.newUser || 'AI User',
+      persona: this.commentPersona || 'neutral',
+    };
+
+    this.commentsService.createCommentWithAI(this.postId, payload).subscribe({
+      next: () => {
+        // Reset lokale Felder und lade Kommentare neu
+        this.newUser = '';
+        this.newText = '';
+        this.loadComments(this.postId);
+      },
+      error: (err: any) => console.error('AI comment failed', err),
     });
   }
 

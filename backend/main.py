@@ -19,18 +19,28 @@ from backend.schemas import (
     PostCreate,
     PostRead,
 )
-from post_generator.generator import TextGenerator
 
-TESTING = os.environ.get("WALLOH_SOCIAL_TESTING") == "1"
+# Use the real TextGenerator from the post_generator package (no stub)
+try:
+    from post_generator.generator import TextGenerator
+except Exception as e:
+    # Fail fast with a clear message so missing deps are noticed immediately
+    raise RuntimeError(
+        "Failed to import TextGenerator from post_generator. "
+        "Ensure post_generator package is present and dependencies are installed."
+    ) from e
 
 ai_generator = TextGenerator()
+
+TESTING = os.environ.get("WALLOH_SOCIAL_TESTING") == "1"
+RABBIT_HOST = "rabbitmq"  # Always use RabbitMQ
 
 
 # -------------------------------------------------
 # RabbitMQ helper
 # -------------------------------------------------
 def publish_resize_job(post_id: int) -> None:
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host="rabbitmq"))
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host=RABBIT_HOST))
     channel = connection.channel()
     channel.queue_declare(queue="image.resize", durable=True)
 
@@ -40,6 +50,38 @@ def publish_resize_job(post_id: int) -> None:
         body=json.dumps({"post_id": post_id}),
     )
 
+    connection.close()
+
+
+# Neues: Publisher für AI-Generierung von Posts
+def publish_post_generate_job(payload: dict) -> None:
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host=RABBIT_HOST))
+    channel = connection.channel()
+    channel.queue_declare(queue="posts.generate", durable=True)
+
+    channel.basic_publish(
+        exchange="",
+        routing_key="posts.generate",
+        body=json.dumps(payload),
+        properties=pika.BasicProperties(delivery_mode=2),
+    )
+    connection.close()
+
+
+# Neues: Publisher für AI-Generierung von Comments
+def publish_comment_generate_job(post_id: int, payload: dict) -> None:
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host=RABBIT_HOST))
+    channel = connection.channel()
+    channel.queue_declare(queue="comments.generate", durable=True)
+
+    # fügen wir die post_id in den payload ein
+    message = {"post_id": post_id, **payload}
+    channel.basic_publish(
+        exchange="",
+        routing_key="comments.generate",
+        body=json.dumps(message),
+        properties=pika.BasicProperties(delivery_mode=2),
+    )
     connection.close()
 
 
@@ -106,44 +148,25 @@ def create_post(post: PostCreate, session: Session = Depends(get_session)):
     return PostRead.from_orm_bytes(new_post)
 
 
-@app.post("/posts/generate", response_model=PostRead)
-def create_post_with_ai(post: GeneratedPostCreate, session: Session = Depends(get_session)):
-    """
-    Generate a post using AI based on the prompt and persona,
-    then save it to the database.
-    """
-    generated_text = ai_generator.generate_text(additional_prompt=post.prompt, persona=post.persona)
-    new_post_data = PostCreate(text=generated_text, user=post.user, image=post.image)
-    new_post = create_post(new_post_data, session=session)
-    return new_post
+@app.post("/posts/generate")
+def create_post_with_ai(post: GeneratedPostCreate):
+
+    # enqueue job and return accepted
+    job = {"user": post.user, "prompt": post.prompt, "persona": post.persona, "image": post.image}
+    publish_post_generate_job(job)
+    from fastapi import Response, status
+
+    return Response(status_code=status.HTTP_202_ACCEPTED)
 
 
-@app.post("/posts/{post_id}/comments/generate", response_model=CommentRead)
-def create_comment_with_ai(
-    post_id: int,
-    comment: GeneratedCommentCreate,
-    session: Session = Depends(get_session),
-):
-    post = session.exec(select(Post).where(Post.id == post_id)).first()
-    if not post:
-        raise HTTPException(404, "Post not found")
+@app.post("/posts/{post_id}/comments/generate")
+def create_comment_with_ai(post_id: int, comment: GeneratedCommentCreate):
 
-    generated_text = ai_generator.generate_text(
-        additional_prompt=post.text,
-        persona=comment.persona,
-    )
+    job_payload = {"user": comment.user, "persona": comment.persona}
+    publish_comment_generate_job(post_id, job_payload)
+    from fastapi import Response, status
 
-    new_comment = Comment(
-        super_id=post_id,
-        text=generated_text,
-        user=comment.user,
-    )
-
-    session.add(new_comment)
-    session.commit()
-    session.refresh(new_comment)
-
-    return CommentRead.from_orm(new_comment)
+    return Response(status_code=status.HTTP_202_ACCEPTED)
 
 
 # -------------------------------------------------

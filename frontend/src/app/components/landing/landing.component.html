@@ -8,17 +8,22 @@
     <div class="flex-1 border rounded-lg p-4 bg-white shadow-sm">
       <h3 class="text-lg font-semibold mb-3 text-center">MANUALLY CREATE POST</h3>
 
+      <label class="font-medium mb-1 block">User</label>
       <input
         class="border w-full px-3 py-2 rounded mb-3"
         placeholder="User"
         [(ngModel)]="user"
       />
+
+      <label class="font-medium mb-1 block">Text</label>
       <textarea
         class="border w-full px-3 py-2 rounded mb-3"
         placeholder="Text"
         rows="5"
         [(ngModel)]="text"
       ></textarea>
+
+      <label class="font-medium mb-1 block">Image</label>
       <input type="file" (change)="onImage($event)" class="mb-4" />
 
       <button
@@ -36,11 +41,23 @@
     <div class="flex-1 border rounded-lg p-4 bg-white shadow-sm">
       <h3 class="text-lg font-semibold mb-3 text-center">GENERATE POST WITH AI</h3>
 
+      <label class="font-medium mb-1 block">User</label>
       <input
         class="border w-full px-3 py-2 rounded mb-3"
         placeholder="AI User"
         [(ngModel)]="user"
       />
+
+      <label class="font-medium mb-1 block">Preferred topic. F.e. Animals or Sports</label>
+      <input
+        id="prompt"
+        class="border w-full px-3 py-2 rounded mb-3"
+        placeholder=""
+        title="Topic"
+        aria-label="Prompt for AI post generation"
+        [(ngModel)]="prompt"
+      />
+
 
       <label class="font-medium mb-1 block">Persona</label>
       <select

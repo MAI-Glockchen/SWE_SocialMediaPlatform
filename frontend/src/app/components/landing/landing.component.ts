@@ -19,6 +19,7 @@ export class LandingComponent {
   text = '';
   imageBase64: string | null = null;
   persona = 'neutral';
+  prompt = '';  // AI Post prompt field
 
   constructor(private postsService: PostsService) { }
 
@@ -55,10 +56,10 @@ export class LandingComponent {
     });
   }
 
-  // Neuer Handler für den 'Create AI' Button
+
   createAiPost() {
-    // Verwende das aktuell eingegebene 'text' Feld als Prompt
-    const prompt = this.text || 'Create a short social media post';
+
+    const prompt = this.prompt || 'Create a short social media post';
     const payload = {
       user: this.user || 'AI User',
       prompt: prompt,

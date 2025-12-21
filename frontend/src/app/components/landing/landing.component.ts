@@ -71,6 +71,7 @@ export class LandingComponent {
         this.user = '';
         this.text = '';
         this.imageBase64 = null;
+        this.persona = 'neutral';
         this.loadPosts();
       },
       error: (err) => console.error('AI post failed', err),

@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
-from sqlmodel import SQLModel, create_engine, Session
+
+from sqlmodel import Session, SQLModel, create_engine
 
 # 1) Detect if we are running tests
 TESTING = os.environ.get("WALLOH_SOCIAL_TESTING") == "1"
@@ -18,8 +19,10 @@ if not TESTING and DATABASE_URL.startswith("sqlite") and "memory" not in DATABAS
 
 engine = create_engine(DATABASE_URL, echo=False)
 
+
 def init_db():
     SQLModel.metadata.create_all(engine)
+
 
 def get_session():
     with Session(engine) as session:

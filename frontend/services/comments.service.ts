@@ -27,7 +27,12 @@ export class CommentsService {
   create(postId: number, payload: CommentCreate) {
     return this.http.post<Comment>(`${this.api}/posts/${postId}/comments`, payload);
   }
-  
+
+  // Korrigierte Methode: Erzeuge Kommentar per AI für einen bestimmten Post
+  createCommentWithAI(postId: number, payload: { user: string; persona?: string }) {
+    return this.http.post<Comment>(`${this.api}/posts/${postId}/comments/generate`, payload);
+  }
+
   delete(commentId: number) {
     return this.http.delete<void>(`${this.api}/comments/${commentId}`);
   }

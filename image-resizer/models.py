@@ -1,7 +1,7 @@
-from typing import Optional
 from datetime import datetime, timezone
+from typing import Optional
 
-from sqlmodel import SQLModel, Field
+from sqlmodel import Field, SQLModel
 
 
 class Post(SQLModel, table=True):
@@ -10,7 +10,4 @@ class Post(SQLModel, table=True):
     image_thumb: Optional[bytes] = None
     text: str
     user: str
-    created_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc),
-        nullable=False
-    )
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), nullable=False)

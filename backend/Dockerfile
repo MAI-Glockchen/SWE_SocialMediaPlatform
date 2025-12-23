@@ -16,6 +16,7 @@ RUN uv sync --frozen --no-dev
 # Copy backend code
 COPY backend ./backend
 
+
 # Expose FastAPI port
 EXPOSE 8000
 

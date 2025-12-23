@@ -1,4 +1,5 @@
-from tests.conftest import client, create_post, create_comment
+from tests.conftest import client, create_comment, create_post
+
 
 def test_delete_post_and_its_comments():
     post_id = create_post()
@@ -14,6 +15,7 @@ def test_delete_post_and_its_comments():
     # Comments gone
     assert client.get(f"/comments/{c1}").status_code == 404
     assert client.get(f"/comments/{c2}").status_code == 404
+
 
 def test_delete_nonexistent_post():
     r = client.delete("/posts/999999")

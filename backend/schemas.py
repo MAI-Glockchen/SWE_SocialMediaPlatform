@@ -11,6 +11,13 @@ class PostCreate(BaseModel):
     user: str
 
 
+class GeneratedPostCreate(BaseModel):
+    image: Optional[str] = None  # base64 or data URL
+    prompt: str
+    persona: Optional[str] = "neutral"
+    user: str
+
+
 class PostRead(BaseModel):
     id: int
     image_thumb: Optional[str] = None  # base64 string for frontend
@@ -28,13 +35,14 @@ class PostRead(BaseModel):
             text=obj.text,
             user=obj.user,
             created_at=obj.created_at,
-            image_full=(
-                base64.b64encode(obj.image_full).decode() if obj.image_full else None
-            ),
-            image_thumb=(
-                base64.b64encode(obj.image_thumb).decode() if obj.image_thumb else None
-            ),
+            image_full=(base64.b64encode(obj.image_full).decode() if obj.image_full else None),
+            image_thumb=(base64.b64encode(obj.image_thumb).decode() if obj.image_thumb else None),
         )
+
+
+class GeneratedCommentCreate(BaseModel):
+    user: str
+    persona: Optional[str] = "neutral"
 
 
 class CommentCreate(BaseModel):

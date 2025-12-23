@@ -20,20 +20,10 @@ from backend.schemas import (
     PostRead,
 )
 
-# Use the real TextGenerator from the post_generator package (no stub)
-try:
-    from post_generator.generator import TextGenerator
-except Exception as e:
-    # Fail fast with a clear message so missing deps are noticed immediately
-    raise RuntimeError(
-        "Failed to import TextGenerator from post_generator. "
-        "Ensure post_generator package is present and dependencies are installed."
-    ) from e
-
-ai_generator = TextGenerator()
-
 TESTING = os.environ.get("WALLOH_SOCIAL_TESTING") == "1"
-RABBIT_HOST = "rabbitmq"  # Always use RabbitMQ
+
+RABBIT_HOST = os.environ.get("RABBIT_HOST", "localhost")
+BACKEND_URL = os.environ.get("BACKEND_URL", "http://localhost:8000")
 
 
 # -------------------------------------------------
@@ -63,24 +53,19 @@ def publish_post_generate_job(payload: dict) -> None:
         exchange="",
         routing_key="posts.generate",
         body=json.dumps(payload),
-        properties=pika.BasicProperties(delivery_mode=2),
     )
     connection.close()
 
 
-# Neues: Publisher für AI-Generierung von Comments
-def publish_comment_generate_job(post_id: int, payload: dict) -> None:
+def publish_comment_generate_job(payload: dict) -> None:
     connection = pika.BlockingConnection(pika.ConnectionParameters(host=RABBIT_HOST))
     channel = connection.channel()
     channel.queue_declare(queue="comments.generate", durable=True)
 
-    # fügen wir die post_id in den payload ein
-    message = {"post_id": post_id, **payload}
     channel.basic_publish(
         exchange="",
         routing_key="comments.generate",
-        body=json.dumps(message),
-        properties=pika.BasicProperties(delivery_mode=2),
+        body=json.dumps(payload),
     )
     connection.close()
 
@@ -160,10 +145,21 @@ def create_post_with_ai(post: GeneratedPostCreate):
 
 
 @app.post("/posts/{post_id}/comments/generate")
-def create_comment_with_ai(post_id: int, comment: GeneratedCommentCreate):
+def create_comment_with_ai(
+    post_id: int, comment: GeneratedCommentCreate, session: Session = Depends(get_session)
+):
 
-    job_payload = {"user": comment.user, "persona": comment.persona}
-    publish_comment_generate_job(post_id, job_payload)
+    post = session.exec(select(Post).where(Post.id == post_id)).first()
+    if not post:
+        raise HTTPException(404, "Post not found")
+
+    job_payload = {
+        "post_id": post.id,
+        "post_text": post.text,
+        "user": comment.user,
+        "persona": comment.persona,
+    }
+    publish_comment_generate_job(job_payload)
     from fastapi import Response, status
 
     return Response(status_code=status.HTTP_202_ACCEPTED)

@@ -187,6 +187,13 @@ npx vitest src/app/components/landing/landing.component.spec.ts
 ```
 
 
+# Mistral API Usage
+
+The post-generator uses the Mistral API to generate short social media posts based on different personas (neutral, positive, negative).
+
+Free Tier: no payment required, daily/monthly token limits apply.
+
+Model used: mistral-small-latest.
 ---
 
 # Notes for Developers

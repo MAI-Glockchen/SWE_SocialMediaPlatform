@@ -10,6 +10,7 @@ services:
       - ./sqlite:/app/sqlite
     environment:
       PYTHONUNBUFFERED: "1"
+      RABBIT_HOST: rabbitmq
     env_file:
       - .env
     networks:
@@ -39,7 +40,6 @@ services:
       test: ["CMD", "rabbitmq-diagnostics", "ping"]
       interval: 5s
       timeout: 5s
-      retries: 10
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
     networks:
@@ -58,19 +58,21 @@ services:
     networks:
       - social-net
 
-  post_generator:
+
+  post_ai_generation:
     build:
-      context: ./post_generator
+      context: post_ai_generation
       dockerfile: Dockerfile
-    container_name: social-post-generator
+    container_name: social-post_ai_generation
+    volumes:
+      - ~/hf_models:/hf_models
+    environment:
+      - RABBIT_HOST=rabbitmq
+      - BACKEND_URL= http://backend:8000
+      - MODEL_PATH= /hf_models/bloomz-560m
     depends_on:
       rabbitmq:
         condition: service_healthy
-      backend:
-        condition: service_started
-    environment:
-      - RABBIT_HOST=rabbitmq
-      - BACKEND_URL=http://backend:8000
     networks:
       - social-net
 
@@ -81,3 +83,4 @@ networks:
 
 volumes:
   rabbitmq_data:
+  hf_models:

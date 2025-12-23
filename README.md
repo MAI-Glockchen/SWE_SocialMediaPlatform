@@ -193,6 +193,8 @@ The post-generator uses the Mistral API to generate short social media posts bas
 
 Free Tier: no payment required, daily/monthly token limits apply.
 
+Please use your own Mistral API key that you can generate on https://admin.mistral.ai/organization/api-keys
+
 Model used: mistral-small-latest.
 ---
 

@@ -27,4 +27,4 @@ Armin: Microservice "Image Resizer" with RabbitMQ: 7,0 h
 Armin: Making Docker Containers more robuts: 1,5 h
 
 Exercise 6
-Andreas:Add ML Text Generation Microservice in Backend Frontend, Docker: 6,0 h
+Andreas:Add ML Text Generation Microservice in Backend Frontend, Docker: 10,0 h

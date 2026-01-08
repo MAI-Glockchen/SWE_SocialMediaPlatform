@@ -15,7 +15,8 @@ export class LandingComponent {
   posts = signal<Post[]>([]);
 
   // new post form fields
-  user = '';
+  aiuser = '';
+  manualuser = '';
   text = '';
   imageBase64: string | null = null;
   persona = 'neutral';
@@ -43,13 +44,14 @@ export class LandingComponent {
 
   submitPost() {
     const payload: PostCreate = {
-      user: this.user,
+      user: this.manualuser?? this.aiuser,
       text: this.text,
       image: this.imageBase64,
     };
 
     this.postsService.create(payload).subscribe(() => {
-      this.user = '';
+      this.manualuser = '';
+      this.aiuser = '';
       this.text = '';
       this.imageBase64 = null;
       this.loadPosts(); // refresh
@@ -61,7 +63,7 @@ export class LandingComponent {
 
     const prompt = this.prompt || 'Create a short social media post';
     const payload = {
-      user: this.user || 'AI User',
+      user: this.aiuser || 'AI User',
       prompt: prompt,
       persona: this.persona || 'neutral',
       image: this.imageBase64,
@@ -69,7 +71,7 @@ export class LandingComponent {
 
     this.postsService.createWithAI(payload).subscribe({
       next: () => {
-        this.user = '';
+        this.aiuser = '';
         this.text = '';
         this.imageBase64 = null;
         this.persona = 'neutral';

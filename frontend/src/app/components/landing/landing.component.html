@@ -5,14 +5,14 @@
   <div class="flex flex-col lg:flex-row gap-6">
 
     <!-- LEFT: Manual Post -->
-    <div class="flex-1 border rounded-lg p-4 bg-white shadow-sm">
+    <div class="flex-1 border rounded-lg p-4 bg-white shadow-sm flex flex-col">
       <h3 class="text-lg font-semibold mb-3 text-center">MANUALLY CREATE POST</h3>
 
-      <label class="font-medium mb-1 block">User</label>
+      <label class="font-medium mb-1 block">ManualUser</label>
       <input
         class="border w-full px-3 py-2 rounded mb-3"
         placeholder="User"
-        [(ngModel)]="user"
+        [(ngModel)]="manualuser"
       />
 
       <label class="font-medium mb-1 block">Text</label>
@@ -27,7 +27,7 @@
       <input type="file" (change)="onImage($event)" class="mb-4" />
 
       <button
-        class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+        class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 mt-auto"
         (click)="submitPost()"
       >
         Create
@@ -38,14 +38,14 @@
     <div class="hidden lg:block w-px bg-gray-300"></div>
 
     <!-- RIGHT: AI Post -->
-    <div class="flex-1 border rounded-lg p-4 bg-white shadow-sm">
+    <div class="flex-1 border rounded-lg p-4 bg-white shadow-sm flex flex-col">
       <h3 class="text-lg font-semibold mb-3 text-center">GENERATE POST WITH AI</h3>
 
-      <label class="font-medium mb-1 block">User</label>
+      <label class="font-medium mb-1 block">AIUser</label>
       <input
         class="border w-full px-3 py-2 rounded mb-3"
         placeholder="AI User"
-        [(ngModel)]="user"
+        [(ngModel)]="aiuser"
       />
 
       <label class="font-medium mb-1 block">Preferred topic. F.e. Animals or Sports</label>
@@ -70,7 +70,7 @@
       </select>
 
       <button
-        class="w-full bg-purple-600 text-white py-2 rounded hover:bg-purple-700"
+        class="w-full bg-purple-600 text-white py-2 rounded hover:bg-purple-700 mt-auto"
         (click)="createAiPost()"
       >
         Generate Random Post with AI
